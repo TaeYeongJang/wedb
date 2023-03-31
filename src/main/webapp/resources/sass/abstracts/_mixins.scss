@@ -1,0 +1,133 @@
+
+@mixin position(
+  $p: absolute,
+  $t: null,
+  $b: null,
+  $l: null,
+  $r: null
+) {
+  position: $p;
+  top: $t;
+  bottom: $b;
+  left: $l;
+  right: $r;
+}
+@mixin fixed(
+  $p: fixed,
+  $t: null,
+  $b: null,
+  $l: null,
+  $r: null
+) {
+  position: $p;
+  top: $t;
+  bottom: $b;
+  left: $l;
+  right: $r;
+}
+
+@mixin font-num1 {
+  font-family:Verdana, Geneva, Tahoma, sans-serif;}
+
+
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  -ms-border-radius: $radius;
+  border-radius: $radius;
+}
+
+@mixin flex-center{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+@mixin transition {
+  transition: transform .3s ease,top .3s ease, left .3s ease;
+  -webkit-transition: transform .3s ease,top .3s ease,left .3s ease;
+  -moz-transition: transform .3s ease, top .3s ease,left .3s ease;
+}
+@mixin sec{
+  width:1250px;margin:0 auto;
+  @include mobile{width:100%}
+  @include mobile-f{width:100%}
+  @include tablet{width:100%}
+  @include tablet2{width:100%}
+  @include desktop{width:100%}
+
+}
+@mixin sec_m{
+  width:100%
+}
+
+@mixin position-none{
+  position: absolute;
+  width: 0;
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+}
+@mixin none{
+  display:none
+}
+
+@mixin dis-table{
+  display:table;
+  table-layout:fixed
+}
+@mixin table-center{
+  display:table-cell;
+  vertical-align:middle;
+}
+
+@mixin before{
+  content:'';display:block;
+}
+@mixin txtshort{
+  white-space:nowrap;text-overflow:ellipsis;overflow:hidden;
+}
+
+@mixin sr_only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}
+
+// responsible
+@mixin mobile {
+  @media (min-width: #{$breakpoint-mobile}) and (max-width: #{$breakpoint-tablet - 1px}) {
+    @content;
+  }
+}
+
+@mixin mobile-f {
+  @media (min-width: #{$breakpoint-mobile-f}) and (max-width: #{$breakpoint-mobile - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-tablet}) and (max-width: #{$breakpoint-desktop - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet2 {
+  @media (min-width: #{$breakpoint-tablet}) and (max-width: #{$breakpoint-desktop - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-desktop}) and (max-width: 1700px ){
+    @content;
+  }
+}
+

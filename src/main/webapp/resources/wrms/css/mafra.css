@@ -1,0 +1,11 @@
+.mafra_table{
+	cursor : pointer;
+}
+
+.mf-title{
+	text-align: center;
+}
+
+/* 태블릿 */
+@media (min-width:768px){
+}

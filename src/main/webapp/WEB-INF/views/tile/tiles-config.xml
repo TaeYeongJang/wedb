@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+ 	
+ 	<!-- Tiles 적용 -->
+    <definition name="layout-tiles" template="/WEB-INF/views/tile/defLayout.jsp"> 
+        <put-attribute name="title"    value="KRP 2018 WRMS RENEWAL" />
+        <put-attribute name="header"   value="/WEB-INF/views/tile/default/PageHeader.jsp" />
+        <put-attribute name="script"   value="/WEB-INF/views/tile/default/PageScript.jsp" />
+        <put-attribute name="nav"      value="/WEB-INF/views/tile/default/PageNav.jsp" /> 
+        <put-attribute name="contents" value="" />
+        <put-attribute name="footer"   value="/WEB-INF/views/tile/default/PageFooter.jsp" />
+    </definition>
+    
+    <definition name="gis-tiles" template="/WEB-INF/views/tile/gis/Layout.jsp"> 
+        <put-attribute name="title"    value="KRP 2018 WRMS RENEWAL" />
+        <put-attribute name="header"   value="/WEB-INF/views/tile/gis/PageHeader.jsp" />
+        <put-attribute name="leftmenu" value="/WEB-INF/views/tile/leftMenu.jsp" /> 
+    </definition>
+   
+    <definition name="/*.tiles" extends="layout-tiles">
+        <put-attribute name="contents" value="/WEB-INF/views/{1}.jsp" /> 
+    </definition>
+    <!-- <definition name="/*.tiles" extends="layout-tiles">
+        <put-attribute name="contents" value="/WEB-INF/views/{1}.jsp" /> 
+    </definition> -->
+    
+	 <definition name="/gis/*.tiles" extends="gis-tiles">
+        <put-attribute name="gisPage" value="/WEB-INF/views/gis/{1}.jsp" /> 
+    </definition>
+	
+    <definition name="/admin/*.tiles" extends="layout-tiles">
+        <put-attribute name="contents" value="/WEB-INF/views/admin/{1}.jsp" /> 
+    </definition>
+    
+    <definition name="/waterway/*.tiles" extends="layout-tiles">
+        <put-attribute name="contents" value="/WEB-INF/views/waterwat/{1}.jsp" /> 
+        <put-attribute name="header" value="/WEB-INF/views/waterway/head.jsp" /> 
+    </definition>
+     
+   
+    <!-- Tiles 비적용 -->
+    <definition name="no-tiles" template="/WEB-INF/views/tile/noTemplate.jsp">
+        <put-attribute name="content" value="" /> 
+    </definition>
+    <definition name="/*.notiles" extends="no-tiles">
+        <put-attribute name="content" value="/WEB-INF/views/notile/{1}.jsp" /> 
+    </definition> 
+ 
+</tiles-definitions>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+<mapper namespace="rawris.wrms.usermgt">
+	<select id="userinfo" parameterType="CommonMap" resultType="CommonMap"> 
+		WITH	rstBase
+		AS			(
+					SELECT		USER_ID
+					,			USER_LEVEL
+					,			USER_ROLE
+					,			DECODE(USER_ROLE,0,'ROLE_ADMIN','ROLE_USER') AS char_user_role
+					,			USER_NAME
+					,			USER_PASSWORD
+					,			USER_EMAIL
+					,			USER_PHONE_OFFICE
+					,			USER_PHONE_CELLULAR
+					,			USER_EKR_YN
+					,			USER_SMS_YN
+					,			USER_COM_YN
+					,			BUSEO_CODE
+					,			USER_ID_TYPE
+					,           ADM_CODE
+					,			USER_TYPE
+					FROM		TB_USER_INFO TUI
+<!-- 					WHERE 		TUI.USER_EMAIL = #{user_id} -->
+					<!-- 22.05.12. 이메일로 로그인 변경 => 22.06.08. 변경 취소 -->
+					WHERE		TUI.USER_ID = #{user_id}
+					AND			TUI.USER_ID_TYPE = #{user_type}
+					)
+		,		rstRawris
+		AS			(
+					SELECT		USER_ID 
+					,			CASE
+									WHEN BUSEO_CODE = '0000000'	THEN 1	
+									WHEN BUSEO_CODE LIKE '3__0000' THEN 2
+									WHEN BUSEO_CODE NOT LIKE '0000000' AND BUSEO_CODE NOT LIKE '3__0000' THEN 3
+									ELSE 4
+								END												AS buseo_level	
+					,			CASE WHEN BUSEO_CODE = '0000000'	THEN '3'	
+									WHEN BUSEO_CODE LIKE '3__0000' THEN SUBSTR(BUSEO_CODE,0,3)
+									WHEN BUSEO_CODE NOT LIKE '0000000' AND BUSEO_CODE NOT LIKE '3__0000' THEN SUBSTR(BUSEO_CODE,0,5)
+									ELSE BUSEO_CODE
+								END												AS level_buseo_code
+					FROM		rstBase
+					)
+		,		rstSabun
+		AS			(
+					SELECT		USER_ID
+					,			VSIB.BUSEO_CODE
+					,			VSIB.BUSEO_PCODE 
+					,			CASE 
+									WHEN VSIB.BUSEO_TYPE = '1' THEN 1
+									WHEN VSIB.BUSEO_TYPE = '3' AND VSIB.BUSEO_LEVEL ='1' THEN 2
+									WHEN VSIB.BUSEO_TYPE = '3' AND VSIB.BUSEO_LEVEL ='2' THEN 3
+									ELSE 4 
+									END			AS buseo_level	
+					,			CASE 
+									WHEN VSIB.BUSEO_TYPE = '1' THEN '3'
+									WHEN VSIB.BUSEO_TYPE = '3' AND VSIB.BUSEO_LEVEL ='1' THEN SUBSTR(rb.BUSEO_CODE,0,3)
+									WHEN VSIB.BUSEO_TYPE = '3' AND VSIB.BUSEO_LEVEL ='2' THEN SUBSTR(rb.BUSEO_CODE,0,5)
+									ELSE rb.BUSEO_CODE 
+								END				AS level_buseo_code
+					FROM		rstBase rb
+					LEFT JOIN	TB_R3_INFO_BUSEO VSIB ON rb.BUSEO_CODE = VSIB.BUSEO_CODE
+					)
+		,		rstTime
+		AS			(
+					SELECT	*
+					FROM	(
+							SELECT		USER_ID 
+							,			LOGIN_TM
+							FROM		TB_OD_DATA_WRMS_USER_SESSION
+<!-- 							WHERE		USER_EMAIL = #{user_id} -->
+							WHERE		USER_ID = #{user_id}
+							ORDER BY 	LOGIN_TM DESC
+							)
+					WHERE ROWNUM = 1
+					)
+		,		jobStatus
+		AS			(
+					select count(job_name) as cnt,
+<!-- 						   #{user_id} as USER_EMAIL  -->
+						   #{user_id} as USER_ID
+                    from USER_SCHEDULER_JOB_LOG 
+                    where status != 'SUCCEEDED' 
+                     and upper(job_name) not like '%TEST%'
+           <![CDATA[ and log_date > sysdate -3 
+                     and log_date <= sysdate  ]]>
+                    group by job_name
+		)
+		SELECT		rb.USER_ID					AS "user_id"
+		,			rb.USER_LEVEL				AS "user_level"
+		,			rb.USER_ROLE				AS "user_role"
+		,			rb.CHAR_USER_ROLE			AS "char_user_role"
+		,			rb.USER_NAME				AS "user_name"
+		,			rb.USER_PASSWORD			AS "user_password"
+		,			rb.USER_EMAIL				AS "user_email"
+		,			rb.USER_PHONE_OFFICE		AS "num_office"
+		,			rb.USER_PHONE_CELLULAR		AS "num_cellular"
+		,			rb.USER_EKR_YN				AS "user_ekr_yn"
+		,			rb.USER_SMS_YN				AS "user_sms_yn"
+		,			rb.USER_COM_YN				AS "user_com_yn"
+		,           rb.ADM_CODE				    AS "adm_code"
+		,			rb.USER_TYPE				AS "user_type"
+		,			CASE RB.USER_ID_TYPE
+						WHEN 'S' THEN RS.BUSEO_LEVEL
+						ELSE RR.BUSEO_LEVEL
+					END							AS "buseo_level"
+		,			CASE RB.USER_ID_TYPE
+						WHEN 'S' THEN RS.LEVEL_BUSEO_CODE
+						ELSE RR.LEVEL_BUSEO_CODE
+					END AS "level_buseo_code"
+		,			rb.BUSEO_CODE				AS "orgin_buseo_code"
+		,			TO_CHAR(rt.LOGIN_TM, 'YYYY-MM-DD HH24:MI:MM') AS "bf_login"
+		,           case when js.CNT > 0 then 'error'
+                         else 'normal' end as "job_status" 
+		FROM		rstBase rb
+		LEFT JOIN	rstRawris rr ON rb.USER_ID = rr.USER_ID
+		LEFT JOIN	rstSabun rs ON rb.USER_ID = rs.USER_ID
+		LEFT JOIN	rstTime rt ON rb.USER_ID = rt.USER_ID
+<!-- 		LEFT JOIN	jobStatus js ON rb.USER_EMAIL = js.USER_EMAIL -->
+		LEFT JOIN	jobStatus js ON rb.USER_ID = js.USER_ID
+	</select>
+
+	<select id="userinforims" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT	VRCIM.HANGUL_NAME	AS "user_name"
+		,		VRCIM.BUSEO_YMD_CD	AS "user_buseo"
+		/* FROM	COM_INSA_MST@DBLINK_DB_RIMS VRCIM */ /* 22.05.31.림스 바로 보는 뷰테이블로 수정  */
+		FROM	V_COM_INSA_MST@DBLINK_DB_RIMS VRCIM
+		WHERE	VRCIM.SABUN = #{user_id}
+		AND		VRCIM.PASSWD = RIMSCOMM_HASH_STR_DATA@DBLINK_DB_RIMS(#{user_org_pw})
+	</select>
+	
+	<select id="ssouserinforims" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT	VRCIM.HANGUL_NAME	AS "user_name"
+		,		VRCIM.BUSEO_YMD_CD	AS "user_buseo"
+		FROM	V_COM_INSA_MST@DBLINK_DB_RIMS VRCIM
+		WHERE	VRCIM.SABUN = #{user_id}
+	</select>
+	
+	<select id="userlevelinfo" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT USER_LEVEL AS "user_level"
+			 , USER_PASSWORD AS "user_password"
+		  FROM TB_USER_INFO
+		 WHERE USER_ID = #{id}
+	</select>
+	
+	<update id="userinforimsup" parameterType="CommonMap">
+		MERGE INTO	TB_USER_INFO TUI
+			USING	(SELECT #{user_id} AS USER_ID FROM DUAL) FDUID
+			ON		(TUI.USER_ID = FDUID.USER_ID)
+		WHEN MATCHED THEN
+			UPDATE
+				SET	USER_NAME		= #{user_name} 
+				,	BUSEO_CODE		= #{user_buseo}
+				,	USER_PASSWORD	= #{user_pw}
+				,   DATE_MOD		= SYSDATE
+		WHEN NOT MATCHED THEN
+			INSERT (USER_ID, USER_LEVEL, USER_ROLE, USER_NAME, USER_PASSWORD, USER_EKR_YN, USER_SMS_YN, USER_COM_YN, USER_ID_TYPE, BUSEO_CODE, USER_TYPE, DATE_REG)
+			VALUES(#{user_id}, '3', '9', #{user_name}, #{user_pw}, 'Y', 'N', 'N', 'S', #{user_buseo}, '01', SYSDATE)
+	</update>
+	
+	<insert id="ins_user_login_session_info" parameterType="CommonMap">
+		merge into TB_OD_DATA_WRMS_USER_SESSION t
+		using dual
+		on (t.SESSIONID = #{login_session_id})
+		<!-- when matched then -->
+           <!-- update set login_tm = sysdate -->
+		when not matched then 
+			insert ( 
+				SESSIONID, LOGIN_IP, USER_ID, USER_LEVEL, USER_ROLE, CHAR_USER_ROLE, USER_NAME, USER_EMAIL, 
+		 		NUM_OFFICE, NUM_CELLULAR, USER_EKR_YN, USER_SMS_YN, USER_COM_YN, LEVEL_BUSEO_CODE, 
+		 		BUSEO_LEVEL, ORGIN_BUSEO_CODE)
+			VALUES ( 
+				#{login_session_id} , #{client_ip} , #{user_id} , #{user_level} , #{user_role} , #{char_user_role} , #{user_name} , #{user_email} , #{num_office} , #{num_cellular} , #{user_ekr_yn} , #{user_sms_yn} , #{user_com_yn} , #{level_buseo_code}, #{buseo_level} , #{orgin_buseo_code} 
+			) 
+	</insert>
+	 
+	<insert id="ins_user_login_session_inf_old" parameterType="CommonMap">
+		INSERT INTO TB_OD_DATA_WRMS_USER_SESSION ( SESSIONID            , LOGIN_IP     , USER_ID    , USER_LEVEL    , USER_ROLE    , CHAR_USER_ROLE    , USER_NAME    , USER_EMAIL    , NUM_OFFICE    , NUM_CELLULAR    , USER_EKR_YN    , USER_SMS_YN    , USER_COM_YN    , LEVEL_BUSEO_CODE   , BUSEO_LEVEL    , ORGIN_BUSEO_CODE    )
+                                          VALUES ( #{login_session_id} , #{client_ip} , #{user_id} , #{user_level} , #{user_role} , #{char_user_role} , #{user_name} , #{user_email} , #{num_office} , #{num_cellular} , #{user_ekr_yn} , #{user_sms_yn} , #{user_com_yn} , #{level_buseo_code}, #{buseo_level} , #{orgin_buseo_code} ) 
+	</insert> 
+	 
+</mapper>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="rawris.wrms.regist.statmanage.user_access_anal">
+	
+	
+	<select id="inq_buseo_head_code_list" parameterType="CommonMap" resultType="CommonMap">
+		SELECT	VSIB.BUSEO_CODE		AS "buseo_head_code"
+		,		VSIB.BUSEO_NAME		AS "buseo_head_name"
+		FROM	TB_R3_INFO_BUSEO VSIB
+		WHERE	VSIB.BUSEO_LEVEL = 1
+		ORDER BY	VSIB.BUSEO_CODE
+	</select>
+	
+	<select id="inq_buseo_branch_code_list" parameterType="CommonMap" resultType="CommonMap">
+		SELECT	VSIB.BUSEO_CODE	AS "buseo_branch_code"
+		,		VSIB.BUSEO_NAME	AS "buseo_branch_name"
+		FROM	TB_R3_INFO_BUSEO VSIB
+		WHERE	VSIB.BUSEO_PCODE LIKE #{buseo_head_code} ||'%'
+		AND		VSIB.BUSEO_LEVEL = 2
+		ORDER BY	VSIB.BUSEO_CODE
+	</select>
+	
+	<select id="inq_buseo_user_list" parameterType="CommonMap" resultType="CommonMap">
+		SELECT	USER_ID    AS "user_id"
+	    ,		USER_NAME  AS "user_name"
+	    FROM	TB_USER_INFO
+	    WHERE	BUSEO_CODE = #{buseo_branch_code}
+	    ORDER BY USER_NAME
+	</select>
+	
+	<select id="search_by_user_nm" parameterType="CommonMap" resultType="CommonMap">
+		SELECT		TUI.USER_ID ||' ('|| DECODE(VSIB.BUSEO_NAME, NULL, '기타', VSIB.BUSEO_NAME) ||')' AS "user_name"
+		,			TUI.USER_ID		AS "user_id"
+		FROM		TB_USER_INFO TUI
+		LEFT JOIN	TB_R3_INFO_BUSEO VSIB ON TUI.BUSEO_CODE = VSIB.BUSEO_CODE
+		WHERE		(TUI.USER_ID LIKE '%'||#{key_word}||'%' or TUI.USER_NAME LIKE '%'||#{key_word}||'%')
+	<!-- <if test="user_buseo_code != null and user_buseo_code != '' ">
+		AND (TUI.BUSEO_CODE LIKE #{user_buseo_code}||'%' OR TUI.BUSEO_CODE = '0000000') /* 로그인한 User의 부서코드 (사용자부서의 사용자만 조회가능) */
+	</if> -->
+		ORDER BY	TUI.USER_ID
+	</select>
+	
+	<select id="search_for_user_nav" parameterType="CommonMap" resultType="CommonMap">
+		SELECT		TUI.USER_ID		AS "user_id"  
+		,			TUI.USER_NAME	AS "user_name"
+		,			DECODE(TUI.BUSEO_CODE, '0000000', '0000000', VSIB.BUSEO_PCODE)	AS "buseo_head_code"
+		,			VSIB.BUSEO_PNAME    AS "buseo_head_name"
+		,			VSIB.BUSEO_CODE  AS "buseo_branch_code"
+		,			VSIB.BUSEO_NAME  AS "buseo_branch_name"
+		FROM		TB_USER_INFO TUI
+		LEFT JOIN	TB_R3_INFO_BUSEO VSIB ON TUI.BUSEO_CODE = VSIB.BUSEO_CODE
+		WHERE		TUI.USER_ID = #{s_user_nm} 
+	</select> 
+	
+	
+
+	<select id="inq_acc_user_analysis" parameterType="CommonMap" resultType="CommonMap"> 
+	   	<include refid="sql_acc_user_analysis"/> 
+	</select> 
+	<select id="inq_acc_user_analysis_page" parameterType="CommonMap" resultType="CommonMap">
+		<include refid="rawris.wrms.listcode.pageHeader"/>
+	   	<include refid="sql_acc_user_analysis"/>
+	    <include refid="rawris.wrms.listcode.pageFooter"/> 
+	</select> 
+	<select id="inq_acc_user_analysis_excel" parameterType="CommonMap" resultType="CommonMap"> 
+	   	<include refid="sql_acc_user_analysis"/> 
+	</select> 
+	<sql id="sql_acc_user_analysis">
+		WITH	rstAccPage
+		AS			(
+					SELECT		TODWAP.USER_ID
+					,			TO_CHAR(TODWAP.ACCESS_TIME,'YYYY-MM-DD HH24:MI:SS') AS ACCESS_TM
+					,			TODWAP.ACCESS_TIME
+					,			TODWAP.USER_IP
+					,			TODWAP.ACCESS_MENU_ID AS menu_id
+					,			TWMM.URL
+					,			TWMM.MENU_NM
+					,			TWMM.DESCRIPTION
+					,			TUI.BUSEO_CODE
+					,			VSIB.BUSEO_PCODE
+					,			VSIB.BUSEO_PNAME
+					,			VSIB.BUSEO_CODE
+					,			VSIB.BUSEO_NAME
+					FROM		TB_OD_DATA_WRMS_ACCESS_PAGE TODWAP
+					LEFT JOIN	TB_USER_INFO TUI ON TODWAP.USER_ID = TUI.USER_ID
+					LEFT JOIN	TB_R3_INFO_BUSEO VSIB ON TUI.BUSEO_CODE = VSIB.BUSEO_CODE
+					LEFT JOIN	TB_WRMS_MENU_MGT TWMM ON TWMM.MENU_ID = TODWAP.ACCESS_MENU_ID
+					WHERE		TODWAP.USER_ID = #{s_user_id}
+					)
+		SELECT		rap.USER_ID				AS "user_id"
+		,			rap.ACCESS_TM			AS "access_tm"
+		,			rap.MENU_ID				AS "menu_id"
+		,			rap.URL					AS "url"
+		,			rap.MENU_NM				AS "menu_nm"
+		,			rap.DESCRIPTION			AS "description"
+		FROM		rstAccPage rap
+		WHERE		rap.ACCESS_TIME BETWEEN TO_DATE(#{s_start_date}||'000001','YYYY-MM-DDHH24MISS') AND TO_DATE(#{s_end_date}||'235959','YYYY-MM-DDHH24MISS')
+		ORDER BY	rap.ACCESS_TIME DESC
+	
+<!-- 		SELECT VRMAL.USER_ID                                      AS "user_id"
+		,      TO_CHAR(VRMAL.ACCESS_TIME,'YYYY-MM-DD HH24:MI:SS') AS "access_tm"
+		,      VRMAL.MENU_ID                                      AS "menu_id"
+		,      TRIM(TWMM.URL)||TRIM(TWMM.QRY_STR)                 AS "url"
+		,      TWMM.MENU_NM                                       AS "menu_nm"
+		,      TWMM.DESCRIPTION                                   AS "description"
+		  FROM VI_RAWRISNEW_MENU_ACCESS_LOG VRMAL
+		  LEFT JOIN TB_WRMS_MENU_MGT TWMM ON VRMAL.MENU_ID = TWMM.MENU_ID   
+		 WHERE VRMAL.USER_ID = #{s_user_id}
+		   AND VRMAL.ACCESS_TIME BETWEEN TO_DATE(#{s_start_date}||'000001','YYYY-MM-DDHH24MISS') AND TO_DATE(#{s_end_date}||'235959','YYYY-MM-DDHH24MISS')
+		  ORDER BY VRMAL.ACCESS_TIME DESC  -->
+	
+	</sql>
+	 
+	<select id="inq_acc_user_analysis_chart" parameterType="CommonMap" resultType="CommonMap">
+		WITH	rstAccPage
+		AS			(
+					SELECT		TO_CHAR(TODWAP.ACCESS_TIME,'YYYY-MM') AS ACCESS_TM 
+					FROM		TB_OD_DATA_WRMS_ACCESS_PAGE TODWAP
+					LEFT JOIN	TB_USER_INFO TUI ON TODWAP.USER_ID = TUI.USER_ID
+					LEFT JOIN	TB_WRMS_MENU_MGT TWMM ON TWMM.MENU_ID = TODWAP.ACCESS_MENU_ID
+					WHERE		TODWAP.USER_ID = #{s_user_id}
+					)
+		,		rstMonthTab
+		AS			(
+					SELECT		LEVEL LEV
+					,			TO_CHAR(ADD_MONTHS(TRUNC(TO_DATE(#{s_end_date},'YYYY-MM-DD'),'MM') , - (LEVEL-1)),'YYYY-MM') TAR_DT
+					FROM		DUAL
+								CONNECT BY LEVEL <![CDATA[ <= ]]> (MONTHS_BETWEEN(TRUNC(TO_DATE(#{s_end_date},'YYYY-MM-DD'),'MM') ,TRUNC(TO_DATE(#{s_start_date},'YYYY-MM-DD'),'MM')) + 1)
+					)
+		,		rstGroup
+		AS			(
+					SELECT		ACCESS_TM
+					,			COUNT(*)	AS ACC_CNT
+					FROM		rstAccPage
+					GROUP BY	ACCESS_TM
+					)
+		SELECT		rmt.LEV				AS "lev"
+		,			rmt.TAR_DT			AS "acc_month"
+		,			NVL(rg.ACC_CNT,0)	AS "acc_cnt"
+		FROM		rstMonthTab rmt
+		LEFT JOIN	rstGroup rg ON rmt.TAR_DT =  rg.ACCESS_TM
+		ORDER BY	rmt.lev DESC
+<!-- 		SELECT DT_TAB.LEV                AS "lev"        
+	    ,      DT_TAB.TAR_DT             AS "acc_month" 
+	    ,      NVL(ACCESS_TAB.ACC_CNT,0) AS "acc_cnt" 
+	      FROM (   
+	         SELECT LEVEL LEV
+	         ,      TO_CHAR(ADD_MONTHS(TRUNC(TO_DATE(#{s_end_date},'YYYY-MM-DD'),'MM') , - (LEVEL-1)),'YYYY-MM') TAR_DT
+	           FROM DUAL
+	          CONNECT BY LEVEL <![CDATA[ <= ]]> (
+	            MONTHS_BETWEEN(TRUNC(TO_DATE(#{s_end_date},'YYYY-MM-DD'),'MM') ,TRUNC(TO_DATE(#{s_start_date},'YYYY-MM-DD'),'MM')) + 1
+	          )
+	     ) DT_TAB
+	     LEFT JOIN (
+	       SELECT ACCESS_TM , COUNT(*) AS ACC_CNT
+             FROM (
+               SELECT TO_CHAR(VRMAL.ACCESS_TIME,'YYYY-MM') AS ACCESS_TM 
+                 FROM VI_RAWRISNEW_MENU_ACCESS_LOG VRMAL
+                 LEFT JOIN TB_WRMS_MENU_MGT TWMM ON VRMAL.MENU_ID = TWMM.MENU_ID   
+                WHERE VRMAL.USER_ID = #{s_user_id}
+                  AND VRMAL.ACCESS_TIME BETWEEN TO_DATE(#{s_start_date}||'000001','YYYY-MM-DDHH24MISS') AND TO_DATE(#{s_end_date}||'235959','YYYY-MM-DDHH24MISS')
+              ) GROUP BY ACCESS_TM
+	    ) ACCESS_TAB ON DT_TAB.TAR_DT =  ACCESS_TAB.ACCESS_TM
+	    ORDER BY DT_TAB.LEV  DESC  -->
+	</select>
+</mapper>

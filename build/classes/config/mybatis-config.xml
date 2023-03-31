@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration> 
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" /> 
+		<setting name="cacheEnabled" value="false"/>
+		<setting name="jdbcTypeForNull" value="NULL"/>
+		<setting name="callSettersOnNulls" value="true"/>
+	</settings>
+	 
+	<typeAliases>
+		<typeAlias alias="HashMap"   type="java.util.HashMap" ></typeAlias>
+		<typeAlias alias="CommonMap" type="com.istec.m1.utils.CommonMap" ></typeAlias>
+		<typeAlias alias="ParmMap"   type="com.istec.m1.utils.ParmMap" ></typeAlias>
+	</typeAliases>
+	  
+</configuration>

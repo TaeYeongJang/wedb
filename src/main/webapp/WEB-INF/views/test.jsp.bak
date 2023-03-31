@@ -1,0 +1,217 @@
+<%@ page contentType="text/html;charset=utf-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+	
+	
+   <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+
+        .coordinate {
+            position: absolute;
+            bottom: 10px;
+            right: 50%;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background-color: #000000;
+            color: #fff;
+            border: 1px solid red;
+            border-radius: 0px;
+        }
+    </style>
+         
+	<script type="text/javascript">
+		var lineJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": {}, "geometry": { "type": "LineString", "coordinates": [[82.5732421875, 29.233683670282787], [84.4573974609375, 28.401064827220896], [82.4139404296875, 28.28019589809702]] } }] }
+		var pointJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [80.92529296875, 29.209713225868185] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [82.15576171875, 29.554345125748267] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [82.210693359375, 28.748396571187406] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [83.64990234375, 28.468691297348148] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [85.53955078125, 27.488781168937997] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [87.20947265625, 27.235094607795503] } }] }
+		var polygonJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": { "stroke": "#555555", "stroke-width": 2, "stroke-opacity": 1, "fill": "#555555", "fill-opacity": 0.5, "name": "rectangle" }, "geometry": { "type": "Polygon", "coordinates": [[[81.7987060546875, 28.86872905602898], [82.21618652343749, 28.86872905602898], [82.21618652343749, 29.176145182559758], [81.7987060546875, 29.176145182559758], [81.7987060546875, 28.86872905602898]]] } }, { "type": "Feature", "properties": { "stroke": "#555555", "stroke-width": 2, "stroke-opacity": 1, "fill": "#555555", "fill-opacity": 0.5, "name": "polygon" }, "geometry": { "type": "Polygon", "coordinates": [[[82.8973388671875, 28.753212537990336], [82.8094482421875, 28.51696944040106], [83.07861328125, 28.101057958669447], [83.86962890625, 28.41555985166584], [83.4686279296875, 28.99372720461893], [82.8973388671875, 28.753212537990336]]] } }] }
+
+	
+		
+		/* var blueIcon = L.icon({
+		    iconUrl: "<c:url value='/resources/sass/images/common/point_1.png'/>",
+		    iconSize:     [7, 7], // size of the icon
+		    iconAnchor:   [0, 0], // point of the icon which will correspond to marker's location
+		    popupAnchor:  [0,0 ] // point from which the popup should open relative to the iconAnchor
+		}); */
+		
+
+
+/* 		const mGreen = L.marker([51.5, -0.09], {icon: greenIcon}).bindPopup('I am a green leaf.').addTo(map);
+		const mRed = L.marker([51.495, -0.083], {icon: redIcon}).bindPopup('I am a red leaf.').addTo(map);
+		const mOrange = L.marker([51.49, -0.1], {icon: orangeIcon}).bindPopup('I am an orange leaf.').addTo(map);
+		const mOrange = L.marker([51.49, -0.1], {icon: orangeIcon}).bindPopup('I am an orange leaf.').addTo(map); */
+		
+
+
+
+ 	var map = L.map('map').setView([28.3949, 84.1240], 8);
+
+
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+    osm.addTo(map);
+    // map.addLayer(osm)
+
+    // water color 
+    var watercolor = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        subdomains: 'abcd',
+        minZoom: 1,
+        maxZoom: 16,
+        ext: 'jpg'
+    });
+    // watercolor.addTo(map)
+
+    // dark map 
+    var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+    });
+    // dark.addTo(map)
+
+    // google street 
+    googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    });
+    // googleStreets.addTo(map);
+
+    //google satellite
+    googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    });
+    // googleSat.addTo(map)
+
+     /* var wms = L.tileLayer.wms("http://localhost:8080/geoserver/wms", {
+        layers: 'geoapp:admin',
+        format: 'image/png',
+        transparent: true,
+        attribution: "wms test"
+    }); */
+    
+    const LeafIcon = L.Icon.extend({
+		options: {
+			shadowUrl: "<c:url value='/resources/sass/images/common/point_1.png'/>",
+			iconSize:     [10, 10], // 좌우넓이, 위아래높이
+			iconAnchor:   [0, 0], // 아이콘이 찍힐 위치 지정
+		    popupAnchor:  [3, 0] // 앞은 -면 왼쪽으로, 뒤는 -면 위로 올라감
+		}
+	});
+
+	const blueIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_1.png'/>"});
+	const yellowIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_2.png'/>"});
+	const orangeIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_3.png'/>"});
+	const redIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_4.png'/>"});
+
+    var singleMarker = L.marker([37.390476, 127.492516], { icon: blueIcon, draggable: true });
+    var popup = singleMarker.bindPopup('This is the Nepal. ' + singleMarker.getLatLng()).openPopup()
+    popup.addTo(map);
+
+    var secondMarker = L.marker([37.390776,127.492616], { icon: redIcon, draggable: true });
+    
+    console.log(singleMarker.toGeoJSON())
+ 			
+    /*==============================================
+             					GEOJSON
+    ================================================*/
+    var pointData = L.geoJSON(pointJson).addTo(map)
+    var lineData = L.geoJSON(lineJson).addTo(map)
+    var polygonData = L.geoJSON(polygonJson, {
+        onEachFeature: function (feature, layer) {
+            layer.bindPopup(`<b>Name: </b>` + feature.properties.name)
+        },
+        style: {
+            fillColor: 'red',
+            fillOpacity: 1,
+            color: '#c0c0c0',
+        }
+    }).addTo(map);
+    
+    
+    /*==============================================
+                    LAYER CONTROL
+    ================================================*/
+    
+    var baseMaps = {
+				        "OSM": osm,
+				        "Water color map": watercolor,
+				        'Dark': dark,
+				        'Google Street': googleStreets,
+				        "Google Satellite": googleSat,
+				    };
+			  
+			  var overlayMaps = {
+				        "First Marker": singleMarker,
+				        'Second Marker': secondMarker,
+				        'Point Data': pointData,
+				        'Line Data': lineData,
+				        'Polygon Data': polygonData
+				        //,'wms': wms
+				    };
+			  
+			  L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+			  
+			  /*==============================================
+                  LEAFLET EVENTS
+  ================================================*/
+			  
+			   map.on('mouseover', function () {
+			        console.log('your mouse is over the map')
+			    })
+
+			    map.on('mousemove', function (e) {
+			        document.getElementsByClassName('coordinate')[0].innerHTML = 'lat: ' + e.latlng.lat + 'lng: ' + e.latlng.lng;
+			        console.log('lat: ' + e.latlng.lat, 'lng: ' + e.latlng.lng)
+			    })
+			    
+   	 /* const object = {};
+  			for(key in data){
+
+  			const mGreen = L.marker([data[key].Y, data[key].X], {icon: blueIcon, draggable:true});
+  			var popup = mGreen.bindPopup('I am a green leaf.' + mGreen.getLatLng()).openPopup();
+  			popup.addTo(map);
+  			
+  			//mGreen.toGeoJSON();
+  			
+  			  
+  			  
+  			//object['marker${cnt}'] = L.marker([data[key].Y, data[key].X], {icon: blueIcon}).bindPopup('<h3>흑산도</h3> <br />436.2').addTo(map);
+  			//object['marker${cnt}'] = L.marker([data[key].Y, data[key].X], {icon: blueIcon, draggable:true}).bindPopup('I am a green leaf.' + ).addTo(map).openPopup();
+  			cnt++;
+  		}  */
+
+
+		
+/* 		<div class="map_popup" style="position:absolute;top:30%;left:50%">
+	        <h3>흑산도</h3>
+	        <span class="point popcolor_step1"></span>
+	        <p class="popcolor_step1">436.2</p>
+	    </div> */
+	    
+	 
+	    
+	</script>
+</head>
+<body>
+    <div id="map">
+        <div class="leaflet-control coordinate"></div>
+    </div>
+</body>
+</html>

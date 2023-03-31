@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="toms.lora.lora_list">
+	<select id="loraList" parameterType="CommonMap" resultType="CommonMap">
+	  	 SELECT
+             BONBU_NAME                              AS "bonbu_name"
+         ,   JISA_NAME                               AS "jisa_name"
+         ,   EQUIP_CODE                              AS "equip_code"
+         ,   EQUIP_NO                                AS "equip_no"
+         ,   FAC_NAME                                AS "fac_name"
+         ,   OBS_BATT                                AS "obs_batt"
+         ,   TO_CHAR(OBS_DATE,'YYYY-MM-DD HH24:MI')  AS "obs_date"
+         ,   OBS_TEMP                                AS "obs_temp"
+         ,   OBS_VOLT                                AS "obs_volt"
+         ,   OBS_WLVL                                AS "obs_wlvl"
+         ,   BONBU_CODE                              AS "org_headquarter_code"
+         ,   JISA_CODE                               AS "org_branch_code"
+         ,   SAVE_DATE                               AS "save_date"
+         FROM VI_R2_MEAS_LORA_NOW
+         <where>
+                 <if test="s_org_headquarter_code != null and !s_org_headquarter_code.equals('')">
+                    AND BONBU_CODE = #{s_org_headquarter_code}
+                 </if>
+                 <if test="s_org_branch_code != null and !s_org_branch_code.equals('')">
+                    AND JISA_CODE = #{s_org_branch_code}
+                 </if>
+                 <if test="s_fac_name != null and !s_fac_name.equals('')">
+                     AND FAC_NAME LIKE '%'||#{s_fac_name}||'%'
+                 </if>
+                 <choose>
+                    <when test="s_equip_code != null and !s_equip_code.equals('')">
+                        AND EQUIP_CODE LIKE '%'||#{s_equip_code}||'%'
+                    </when>
+                    <when test="s_equip_no != null and !s_equip_no.equals('')">
+                        AND EQUIP_NO = #{s_equip_no}
+                    </when>
+                 </choose>
+         </where>
+         ORDER BY BONBU_CODE ASC, JISA_CODE ASC, FAC_NAME ASC
+	</select>
+	
+</mapper>

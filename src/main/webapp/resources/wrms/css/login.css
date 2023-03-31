@@ -1,0 +1,204 @@
+/* css reset */
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+/* 기본 및 휴대폰 */
+#wrap{
+  position: relative;
+}
+.background{
+	background-image: url('/wrms/resources/wrms/gis/image/visuals_index_01.jpg');
+	opacity: 0.9;
+	background-position: center;
+	background-size: cover;
+	height: 100vh;
+	min-height: 550px;
+}
+.background{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.background h1{
+  font-family: 'Roboto', sans-serif;
+  color: white;
+  text-align: center;
+  font-size: 3rem;
+  margin-bottom: 3rem;
+}
+.background h3{
+	font-size: 1.8rem;
+	text-align: center;
+}
+.btn{
+	background-color: white;
+	border-radius: 4px;
+	text-transform: uppercase;
+	text-align: center;
+	padding: 1.2rem 2rem;
+	opacity: 0.8;
+	margin-top: 2rem;
+	width: 49%;
+}
+
+.loginForm{
+	margin-top: 5px;
+}
+/* 태블릿 */
+@media (min-width:768px){
+.background h1{
+  font-size: 4rem;
+  margin-bottom: 4rem;
+}
+.background h3{
+  font-size: 2.2rem;
+}
+.btn{
+  margin-top: 6rem;
+}
+}
+/* 데스크톱 */
+@media (min-width:980px){
+}
+
+
+.white{
+    color:#000;
+    background-color:#fff;
+}
+
+.btn-facebook {
+    color: #ffffff;
+    -webkit-text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #2b4b90;
+    *background-color: #133783;
+    background-image: -moz-linear-gradient(top, #3b5998, #133783);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#3b5998), to(#133783));
+    background-image: -webkit-linear-gradient(top, #3b5998, #133783);
+    background-image: -o-linear-gradient(top, #3b5998, #133783);
+    background-image: linear-gradient(to bottom, #3b5998, #133783);
+    background-repeat: repeat-x;
+    border-color: #133783 #133783 #091b40;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3b5998', endColorstr='#ff133783', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+}
+
+    .btn-facebook:hover,
+    .btn-facebook:focus,
+    .btn-facebook:active,
+    .btn-facebook.active,
+    .btn-facebook.disabled,
+    .btn-facebook[disabled] {
+        color: #ffffff;
+        background-color: #133783 !important;
+        *background-color: #102e6d !important;
+    }
+    
+    #user_signup {
+    	background: #08799c !important;
+    }
+   
+     #user_signup:hover {
+    	background-color: #08799c !important;
+    }
+
+    .btn-facebook:active,
+    .btn-facebook.active {
+        background-color: #0d2456 \9 !important;
+    }
+.login-box-msg {
+	
+}
+
+.login-box-body, .register-box-body {
+    background: #fff;
+    border-top: 0;
+    color: #666;
+}
+
+.modal-dialog {
+    background: #ffffff;
+}
+
+.modal-dialog .modal-title, .modal-dialog .card-footer {
+    background: #efefef;
+}
+
+.modal-dialog .modal-title {
+    padding: 10px 40px 10px 30px;
+}
+
+.modal-dialog .card-body, .modal-dialog .card-footer {
+    padding: 10px 40px 10px 40px;
+}
+
+.control-label {
+	display: block;
+	margin-bottom: 5px;
+}
+
+.select {
+	width: 49%;
+	float: left;
+}
+
+.signup_btn {
+	padding: 6px 12px;
+	font-size: 16px;
+	border-radius: 3px;
+	border: 1px solid transparent;
+}
+
+.form-group span {
+	color: red;
+	padding-left: 5px;
+	font-weight: bold;
+}

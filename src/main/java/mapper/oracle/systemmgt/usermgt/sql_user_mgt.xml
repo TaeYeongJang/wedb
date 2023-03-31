@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="rawris.wrms.regist.systemmgt.user_mgt">
+	
+	
+	<select id="inq_user_mgt_list" parameterType="CommonMap" resultType="CommonMap"> 
+	   	<include refid="sql_user_mgt_list"/> 
+	</select> 
+	<select id="inq_user_mgt_list_page" parameterType="CommonMap" resultType="CommonMap">
+		<include refid="rawris.wrms.listcode.pageHeader"/>
+	   	<include refid="sql_user_mgt_list"/>
+	    <include refid="rawris.wrms.listcode.pageFooter"/> 
+	</select> 
+	<select id="inq_user_mgt_list_excel" parameterType="CommonMap" resultType="CommonMap"> 
+	   	<include refid="sql_user_mgt_list"/> 
+	</select> 
+	
+	<select id="inq_user_mgt_list_sgg" parameterType="CommonMap" resultType="CommonMap"> 
+	   	<include refid="sql_user_mgt_list_sgg"/> 
+	</select> 
+	<select id="inq_user_mgt_list_sgg_page" parameterType="CommonMap" resultType="CommonMap">
+		<include refid="rawris.wrms.listcode.pageHeader"/>
+	   	<include refid="sql_user_mgt_list_sgg"/>
+	    <include refid="rawris.wrms.listcode.pageFooter"/> 
+	</select> 
+	<select id="inq_user_mgt_list_sgg_excel" parameterType="CommonMap" resultType="CommonMap"> 
+	   	<include refid="sql_user_mgt_list_sgg"/> 
+	</select> 	
+	
+	<sql id="sql_user_mgt_list"> 
+		select 
+			a.user_id                               as "user_id",
+			a.buseo_code                            as "buseo_code",
+			d.buseo_pname                           as "buseo_head_name",
+			d.buseo_name                            as "buseo_branch_name",
+			a.user_name                             as "user_name",
+			a.user_level                            as "user_level",
+			b.user_level_name                       as "user_level_name",
+			a.user_role                             as "user_role",
+			c.user_role_name                        as "user_role_name",
+			a.user_email                            as "user_email",
+			a.user_phone_office                     as "user_phone_office",
+			a.user_phone_cellular                   as "user_phone_cellular",
+			to_char(a.date_reg, 'yyyy-mm-dd')       as "date_reg",
+			to_char(a.date_mod, 'yyyy-mm-dd')		as "date_mod"
+		from
+			tb_user_info a
+			left outer join tb_user_info_level b on b.user_level = a.user_level
+			left outer join tb_user_info_role c on c.user_role = a.user_role
+			left join TB_R3_INFO_BUSEO d on d.buseo_code = a.buseo_code
+		where a.user_type = '01'
+		  and a.user_role != 7
+			<if test="s_buseo_head_code != null and s_buseo_head_code != '' ">
+			and substr(d.buseo_pcode,0,3) = #{s_buseo_head_code}
+			</if>
+			<if test="s_buseo_branch_code != null and s_buseo_branch_code != '' ">
+			and d.buseo_code = #{s_buseo_branch_code}
+			</if>
+			<if test="s_user_id != null and s_user_id != '' ">
+			and a.user_id = #{s_user_id}
+			</if>
+			<if test="s_user_name != null and s_user_name != '' ">
+			and a.user_name like '%'||#{s_user_name}||'%'
+			</if>
+		order by CASE WHEN a.USER_LEVEL = 6 THEN 1 ELSE 2 END, d.buseo_pseq, d.buseo_seq, user_name
+	</sql>
+	
+	<sql id="sql_user_mgt_list_sgg">
+		SELECT TUI.USER_ID 							AS "user_id"
+			 , TUI.ADM_CODE 						AS "buseo_code"
+			 , VACI.SIDO_NAME 					AS "buseo_head_name"
+			 , VACI.SIGUNGU_NAME 					AS "buseo_branch_name"
+			 , TUI.USER_NAME 						AS "user_name"
+			 , TUI.USER_LEVEL 						AS "user_level"
+			 , TUIL.USER_LEVEL_NAME 				AS "user_level_name"
+			 , TUI.USER_ROLE 						AS "user_role"
+			 , TUIR.USER_ROLE_NAME 					AS "user_role_name"
+			 , TUI.USER_EMAIL 						AS "user_email"
+			 , TUI.USER_PHONE_OFFICE 				AS "user_phone_office"
+			 , TUI.USER_PHONE_CELLULAR 				AS "user_phone_cellular"
+			 , TO_CHAR(TUI.DATE_REG, 'YYYY-MM-DD') 	AS "date_reg"
+			 , TO_CHAR(TUI.DATE_MOD, 'YYYY-MM-DD') 	AS "date_mod"
+		FROM TB_USER_INFO TUI
+		LEFT JOIN TB_USER_INFO_LEVEL TUIL ON TUI.USER_LEVEL = TUIL.USER_LEVEL
+		LEFT JOIN TB_USER_INFO_ROLE TUIR ON TUI.USER_ROLE = TUIR.USER_ROLE
+		LEFT JOIN VI_ADDR_CODE_INFO VACI ON TUI.ADM_CODE = VACI.SIGUNGU_CODE
+		WHERE TUI.USER_TYPE = '02'
+		<if test="s_buseo_head_code != null and s_buseo_head_code != '' ">
+	    AND VACI.SIDO_CODE = #{s_buseo_head_code}
+	    </if>
+	    <if test="s_buseo_branch_code != null and s_buseo_branch_code != '' ">
+	    AND VACI.SIGUNGU_CODE = #{s_buseo_branch_code}
+	    </if>
+	    <if test="s_user_id != null and s_user_id != '' ">
+		AND TUI.USER_ID = #{s_user_id}
+		</if>
+		<if test="s_user_name != null and s_user_name != '' ">
+		AND TUI.USER_NAME LIKE '%'||#{s_user_name}||'%'
+		</if>
+	    ORDER BY CASE WHEN TUI.USER_LEVEL = 6 THEN 1 ELSE 2 END, VACI.SIGUNGU_CODE, TUI.USER_NAME
+	</sql>
+	
+	<sql id="sql_user_mgt_list_old"> 
+		 SELECT TUI.USER_ID                                                       AS "user_id"  
+	   	 ,      VRBBF.BUSEO_HEAD_NAME                                             AS "buseo_head_name"   
+	   	 ,      VRBBF.BUSEO_BRANCH_NAME                                           AS "buseo_branch_name"   
+	   	 ,      TUI.USER_NAME                                                     AS "user_name"
+	   	 ,      TUI.USER_LEVEL                                                    AS "user_level"  
+	   	 ,      FN_COMM_DET_CODE_COL('USER_LEVEL_INFO',TUI.USER_LEVEL,'NAME_KOR') AS "user_level_name"
+	   	 ,      TUI.USER_ROLE                                                     AS "user_role"
+	   	 ,      FN_COMM_DET_CODE_COL('USER_ROLE_INFO',TUI.USER_LEVEL,'NAME_KOR')  AS "user_role_name" 
+	   	 , 	    TUI.USER_EMAIL                                                    AS "user_email"
+	   	 , 	    TUI.USER_PHONE_OFFICE                                             AS "user_phone_office"
+	   	 , 	    TUI.USER_PHONE_CELLULAR                                           AS "user_phone_cellular"
+		 , 	    TO_CHAR(TUI.DATE_REG, 'YYYY-MM-DD')                               AS "date_reg"
+		 , 	    TO_CHAR(TUI.DATE_MOD, 'YYYY-MM-DD')                               AS "date_mod"
+	   	   FROM TB_USER_INFO TUI
+	   	   LEFT JOIN VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TUI.BUSEO_CODE = VRBBF.BUSEO_BRANCH_CODE
+	   	  WHERE 1 = 1 
+	   	    <if test="s_buseo_head_code != null and s_buseo_head_code != '' ">
+	   	    AND VRBBF.BUSEO_HEAD_CODE = #{s_buseo_head_code}
+	   	    </if>
+	   	    <if test="s_buseo_branch_code != null and s_buseo_branch_code != '' ">  
+	   	    AND VRBBF.BUSEO_BRANCH_CODE = #{s_buseo_branch_code}
+	   	    </if>
+	   	    <if test="s_user_id != null and s_user_id != '' "> 
+	   	    AND TUI.USER_ID = #{s_user_id}
+	   	    </if> 
+	   	  ORDER BY BUSEO_HEAD_JIKJE_SEQ , BUSEO_BRANCH_JIKJE_SEQ , TUI.USER_NAME
+	</sql>
+</mapper>

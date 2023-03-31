@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="rawris.krc.rawris">
+	
+	<select id="get_sisul" parameterType="CommonMap" resultType="CommonMap">
+		SELECT *
+          FROM KTD_WATER_SISUL
+         WHERE 1=1
+           AND FAC_CODE IN ('4579010352','2917010029','4617010152')
+			  
+	</select>
+	
+	<select id="get_aws_new_list" parameterType="CommonMap" resultType="CommonMap">
+        SELECT CASE WHEN B.TYPE = 1 THEN 'ASOS' ELSE 'AWS' END TYPE,
+               A.AWSID,
+               NVL (C.TODAY_RN, 0) TODAY_RN,
+               NVL (D.SUM_RN, 0)   SUM_RN,
+               DECODE(ARAN.AWSID, NULL, NVL(R.SUM_RN, 0), NULL) AVG_RN, -- 평년 강수량
+               DECODE(ARAN.AWSID, NULL, FUNC_MAX_NUMBER(ROUND(NVL (D.SUM_RN, 0) / NVL(GREATEST(R.SUM_RN, 1), 1)*100), 1000), NULL) AS AVG_RATIO, -- 평년 대비 강수량
+               A.OBSNM,
+               A.LON               X,
+               A.LAT               Y
+          FROM TB_CD_KMA_AWS  A,
+               (SELECT * FROM TB_CD_KMA_AWS_USE WHERE USE_YN = 'Y' <if test="TYPE!=null" > and TYPE = #{type} </if>) B,
+               (SELECT
+                    STN_ID AWSID, SUM(RN / 10) TODAY_RN
+                FROM TB_NJ_AWS_RAIN_1HR
+                WHERE TM LIKE TO_CHAR (SYSDATE, 'YYYYMMDD') || '%'
+                AND   RN > 0 GROUP BY STN_ID)  C,
+               (SELECT SUM(RN / 10) SUM_RN, STN_ID AWSID FROM TB_NJ_AWS_RAIN_1HR WHERE RN <![CDATA[ > ]]> 0 AND TM BETWEEN #{s_start_date} || #{s_start_time} AND #{s_end_date} || #{s_end_time} GROUP BY STN_ID ORDER BY STN_ID ASC) D,
+               (SELECT
+                    AWSID,
+                    SUM (RN) SUM_RN
+                FROM TB_NJ_AWS_RAIN_AVG10_30
+                WHERE MMDD IN (
+                                SELECT
+                                  TO_CHAR(YYYYMMDD, 'MMDD') MMDD
+                                FROM
+                                    (
+                                    SELECT
+                                    TO_DATE (#{s_start_date}, 'YYYYMMDD') + LEVEL - 1 AS YYYYMMDD
+                                    FROM DUAL CONNECT BY (TO_DATE (#{s_start_date}, 'YYYYMMDD') + LEVEL - 1) <![CDATA[ <= ]]> TO_DATE (#{s_end_date}, 'YYYYMMDD')
+                                )
+                )
+                AND AWSID NOT IN (SELECT * FROM TB_NJ_AWS_RAIN_AVG_NOT) -- 평년데이터가 부족한 경우
+                GROUP BY AWSID
+                ) R,
+                TB_NJ_AWS_RAIN_AVG_NOT ARAN
+         WHERE  A.AWSID = B.AWSID
+         AND    A.AWSID = C.AWSID(+)
+         AND    A.AWSID = D.AWSID(+)
+         AND    A.AWSID = R.AWSID(+)
+         AND    A.AWSID = ARAN.AWSID(+)
+    <if test="NAME != null" >
+         AND    OBSNM LIKE '%' || #{name} || '%'
+    </if>
+        ORDER BY A.OBSNM ASC
+</select>
+
+<select id="get_aws_test" parameterType="CommonMap" resultType="CommonMap">
+         SELECT  A.AWSID,
+                 A.OBSNM,
+                 A.LON         X,
+                 A.LAT         Y
+          FROM TB_CD_KMA_AWS  A
+        ORDER BY A.OBSNM ASC
+</select>
+	
+</mapper>

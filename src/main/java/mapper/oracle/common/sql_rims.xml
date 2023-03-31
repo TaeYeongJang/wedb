@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="rawris.krc.rims">
+
+	<select id="get_water_rate_date" parameterType="CommonMap" resultType="CommonMap">
+	   <![CDATA[
+			select max(check_date) FROM ktd_water_rate where check_date <= #{base_dt}
+		]]>
+	</select>
+	
+	<select id="getDroughtGuessTableBYBonbu" parameterType="CommonMap" resultType="CommonMap">
+	   select 
+			    replace(f_ktd_buseo_bonbuname(ORGCD_BONBU),'지역본부','') bonbuName
+			    ,ORGCD_BONBU code
+			    ,count(stdcd) CNT
+			    ,sum(count_IADI) COUNT_IADI
+			    ,sum(count_RDI)  COUNT_RDI
+			    ,sum(count_SMI)  COUNT_SMI
+		from
+		(
+			select 
+			 a.*
+			    ,CASE 
+			    WHEN  IADI >-2 THEN 0
+			    else 1
+			    END    AS count_IADI
+			    ,CASE 
+			    WHEN  SMI >-2  THEN 0
+			    ELSE 1
+			    END    AS count_SMI
+			    ,CASE 
+			    WHEN  rdi >-2 THEN 0
+			    ELSE 1
+			    END    AS count_RDI
+			  From
+			  DROUGHT.ANALY_DROUGHT_INDEX a
+		  ) a
+		  group by ORGCD_BONBU
+		  order by ORGCD_BONBU
+	</select>
+	
+	
+	<select id="getDroughtGuessTableByJisa" parameterType="CommonMap" resultType="CommonMap">
+	<![CDATA[
+			  SELECT 
+					  MNGCD
+					 ,STDCD code
+					 ,RES_NAME BONBUNAME
+					 ,RDI
+					 ,IADI
+					 ,SMI
+					 , '1' CNT
+					 ,CASE 
+					    WHEN  IADI >-2 THEN 0
+					    else 1
+					 END    AS count_IADI
+					 ,CASE 
+					    WHEN  SMI >-2  THEN 0
+					    ELSE 1
+					 END    AS count_SMI
+					 ,CASE 
+					    WHEN  rdi >-2 THEN 0
+					    ELSE 1
+					 END    AS count_RDI
+				From DROUGHT.ANALY_DROUGHT_INDEX a
+			    where 1=1
+				 AND IADI <-2
+				 AND ORGCD_BONBU=#{org_code}
+	   ]]>
+	</select>
+	
+</mapper>

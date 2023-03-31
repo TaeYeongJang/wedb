@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="rawris.wrms.common.file">
+
+	
+	<insert id="ins_krc_file_upload" parameterType="CommonMap">
+        INSERT INTO TB_KRC_COMM_FILE_MGT ( 
+	       FILE_SEQ ,  APPL ,  FILE_CATE ,  CATE_UNIQ_SEQ ,  FILE_CONTENT ,  FILE_NAME ,  FILE_TYPE ,  FILE_EXT , FILE_SIZE
+	    <if test="file_desc != null"> ,  FILE_DESC </if> 
+	    <if test="user_id != null">   ,  USER_ID   </if> 
+	    <if test="tmp_col1 != null">  ,  TMP_COL1  </if>
+	    <if test="tmp_col2 != null">  ,  TMP_COL2  </if>
+	    <if test="tmp_col3 != null">  ,  TMP_COL3  </if>
+	    <if test="tmp_col4 != null">  ,  TMP_COL4  </if>
+	    <if test="tmp_col5 != null">  ,  TMP_COL5  </if> 
+	    <if test="tmp_col_desc != null"> ,  TMP_COL_DESCRIBE </if>
+	    ) VALUES(
+	    	SEQ_USER_FILE.NEXTVAL , #{appl} , #{file_cate}, #{cate_uniq_seq}, #{file_content}, #{file_name}, #{file_type}, #{file_ext}, #{file_size}
+	    <if test="file_desc != null"> ,  #{file_desc} </if> 
+	    <if test="user_id != null">   ,  #{user_id}   </if> 
+	    <if test="tmp_col1 != null">  ,  #{tmp_col1}  </if>
+	    <if test="tmp_col2 != null">  ,  #{tmp_col2}  </if>
+	    <if test="tmp_col3 != null">  ,  #{tmp_col3}  </if>
+	    <if test="tmp_col4 != null">  ,  #{tmp_col4}  </if>
+	    <if test="tmp_col5 != null">  ,  #{tmp_col5}  </if> 
+	    <if test="tmp_col_desc != null"> ,  #{tmp_col_desc} </if>
+	    )                           
+     </insert>
+     
+     <select id="inq_krc_file_info" parameterType="CommonMap" resultType="CommonMap">
+     	 SELECT FILE_SEQ      AS "file_seq"
+	     ,      APPL          AS "appl"
+	     ,      FILE_CATE     AS "file_cate"
+	     ,      CATE_UNIQ_SEQ AS "cate_uniq_seq"
+	     ,      USER_ID       AS "user_id"
+	   /*,      FILE_CONTENT  AS "file_content" */
+	     ,      FILE_NAME     AS "file_name"
+	     ,      FILE_TYPE     AS "file_type"
+	     ,      FILE_SIZE     AS "file_size"
+	     ,      FILE_EXT      AS "file_ext"
+	     ,      FILE_DESC     AS "file_desc"
+	     ,      TMP_COL1      AS "tmp_col1"
+	     ,      TMP_COL2      AS "tmp_col2"
+	     ,      TMP_COL3      AS "tmp_col3"
+	     ,      TMP_COL4      AS "tmp_col4"
+	     ,      TMP_COL5      AS "tmp_col5"
+	       FROM TB_KRC_COMM_FILE_MGT
+	      WHERE 1 = 1 
+	        AND APPL = #{application}
+		    AND FILE_CATE = #{category}
+		    AND CATE_UNIQ_SEQ = #{cate_uniq_seq}
+		  ORDER BY FILE_SEQ DESC   
+     </select> 
+     <select id="inq_krc_blob_file" parameterType="CommonMap" resultType="CommonMap">
+        SELECT FILE_SEQ      AS "file_seq"
+        ,      FILE_CONTENT  AS "file_content"
+        ,      FILE_TYPE     AS "file_type"
+        ,      FILE_NAME     AS "file_name"
+	    ,      FILE_TYPE     AS "file_type"
+	    ,      FILE_SIZE     AS "file_size"
+	    ,      FILE_EXT      AS "file_ext"
+	    ,      FILE_DESC     AS "file_desc"
+	    ,      TMP_COL1      AS "tmp_col1"
+	    ,      TMP_COL2      AS "tmp_col2"
+	    ,      TMP_COL3      AS "tmp_col3"
+	    ,      TMP_COL4      AS "tmp_col4"
+	    ,      TMP_COL5      AS "tmp_col5"
+          FROM TB_KRC_COMM_FILE_MGT
+          WHERE 1 = 1 
+	        <if test="application != null and application != '' ">
+	        AND APPL = #{application}
+	        </if>
+		    <if test="category != null and category != '' ">
+		    AND FILE_CATE = #{category}
+		    </if>
+		    <if test="cate_uniq_seq != null and cate_uniq_seq != '' ">
+		    AND CATE_UNIQ_SEQ = #{cate_uniq_seq}
+		    </if>
+		    <if test="file_seq != null and file_seq != '' ">
+		    AND FILE_SEQ = #{file_seq}
+		    </if>
+		    ORDER BY FILE_SEQ DESC
+     </select>
+     
+     
+     <update id="del_krc_file_info" parameterType="CommonMap"> 
+     	UPDATE TB_KRC_COMM_FILE_MGT
+     	   SET USE_YN = 'N'
+		 WHERE 1 = 1 
+		   AND APPL = #{application}
+		   AND FILE_CATE = #{category}
+		   AND CATE_UNIQ_SEQ = #{cate_uniq_seq}
+		   <if test="file_seq != null and file_seq != '' ">
+		   AND FILE_SEQ = #{file_seq}
+		   </if>
+     </update>
+	 
+</mapper>	

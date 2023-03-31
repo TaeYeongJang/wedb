@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+ 
+	<context:annotation-config/>
+    <context:component-scan base-package="com.istec.m1.service" /> 
+    <context:component-scan base-package="com.istec.m1.auth" />
+    <context:component-scan base-package="com.istec.m1.dao" />  
+  
+	<http pattern="/**/*.js" security="none" />
+	<http pattern="/**/*.css" security="none" />
+	<http pattern="/cas/**" security="none" />
+ 	
+	<!-- AJAX API -->
+	<http pattern="/query/json/**" entry-point-ref="unauthorizedEntryPoint"> 
+		<!-- <intercept-url pattern="/query/json/**" access="ROLE_USER" /> -->
+		<intercept-url pattern="/query/json/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<http-basic />
+		<form-login 
+	            username-parameter="username"
+	            password-parameter="password"
+				login-processing-url="/loginProcess" 
+				authentication-success-handler-ref="restLoginSuccessHandler"
+				authentication-failure-handler-ref="restLoginFailureHandler"
+				/>
+				                    
+		<logout logout-url="/logout" 
+				delete-cookies="JSESSIONID"
+				success-handler-ref="restLogoutSuccessHandler"
+				/>
+	</http>
+	<beans:bean id="restLoginSuccessHandler" class="com.istec.m1.auth.RestLoginSuccessHandler"/> 
+	<beans:bean id="restLoginFailureHandler" class="com.istec.m1.auth.RestLoginFailureHandler"/>
+	<beans:bean id="restLogoutSuccessHandler" class="com.istec.m1.auth.RestLogoutSuccessHandler"/>
+	
+	<!-- POPUP API -->
+	<http pattern="/pop/**" entry-point-ref="customAuthEntryPoint"> 
+        <intercept-url pattern="/resources/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/pop/**" access="ROLE_USER" />
+		<intercept-url pattern="/query/**" access="ROLE_USER" />
+		<access-denied-handler ref="customAccessDeniedHandler" />
+	</http>
+	
+ 	<!-- FILE UPLOAD/DOWNLOAD  API -->
+	<http pattern="/files/**" entry-point-ref="customAuthEntryPoint">  
+		<intercept-url pattern="/equip/**" access="ROLE_USER" /> 
+	</http>
+
+ 	<!-- Jni Simulation API -->
+	<http pattern="/smltn/**" entry-point-ref="customAuthEntryPoint">  
+		<intercept-url pattern="/smltn/**" access="ROLE_USER" /> 
+	</http>
+ 	
+	  
+	<!-- ETC API -->         
+    <http pattern="/**" auto-config='true' >
+        <intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <intercept-url pattern="/m/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <intercept-url pattern="/ssoLogin" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <intercept-url pattern="/ssoLogin/" access="IS_AUTHENTICATED_ANONYMOUSLY" />  
+        <intercept-url pattern="/auth/fail" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <intercept-url pattern="/error" access="IS_AUTHENTICATED_ANONYMOUSLY" />    
+        <intercept-url pattern="/resources/**" access="IS_AUTHENTICATED_ANONYMOUSLY" /> 
+        <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+   <!--      <intercept-url pattern="/**" access="ROLE_USER" /> -->
+		<form-login 
+	            username-parameter="id"
+	            password-parameter="pw"
+				login-page="/login"
+				default-target-url="/gis/main" 
+				authentication-failure-url="/auth/fail"
+				login-processing-url="/loginProcess" 
+				always-use-default-target="false"
+				authentication-success-handler-ref="customLoginSuccessHandler"
+				authentication-failure-handler-ref="customLoginfailHandler"
+				/>
+		<logout logout-success-url="/gis/main" />  
+		<access-denied-handler ref="customAccessDeniedHandler" />
+
+<!-- 중복 로그인 방지를 위해 max-sessions 값을 1로 조정 -->
+        <session-management>
+            <concurrency-control max-sessions="100" expired-url="/auth/duplicate"/>
+        </session-management>
+    </http>
+      
+    <beans:bean class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"/>
+
+    <beans:bean id="customLoginSuccessHandler" class="com.istec.m1.auth.CustomLoginSuccessHandler">
+    	<beans:property name="defaultTargetUrl" value="/gis/main"/>
+    </beans:bean>
+
+    <beans:bean id="customLoginfailHandler" class="com.istec.m1.auth.CustomLoginFailHandler"> 
+    	<!-- <beans:property name="defaultTargetUrl" value="/gis/main"/> -->
+    </beans:bean>
+
+    <beans:bean id="unauthorizedEntryPoint" class="com.istec.m1.auth.UnauthorizedEntryPoint"/>
+    <beans:bean id="customAuthEntryPoint" class="com.istec.m1.auth.CustomAuthEntryPoint">
+     	<beans:property name="errorPage" value="error" />
+    </beans:bean>
+    <beans:bean id="customAccessDeniedHandler" class="com.istec.m1.auth.CustomAccessDeniedHandler">
+     	<beans:property name="errorPage" value="error" />
+    </beans:bean>
+     
+    <authentication-manager>
+        <authentication-provider ref="customAuthenticationProvider"/>
+    </authentication-manager>
+     
+    <beans:bean id="customAuthenticationProvider" class="com.istec.m1.auth.CustomAuthenticationProvider"/>
+     
+</beans:beans>

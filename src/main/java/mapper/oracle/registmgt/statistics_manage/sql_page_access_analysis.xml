@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="rawris.wrms.regist.statmanage.page_access_anal">
+	
+	<select id="inq_acc_page_analysis" parameterType="CommonMap" resultType="CommonMap">
+		<include refid="sql_acc_page_analysis"/>
+	</select>
+	<select id="inq_acc_page_analysis_excel" parameterType="CommonMap" resultType="CommonMap">
+		<include refid="sql_acc_page_analysis"/>
+	</select>
+	
+	<sql id="sql_acc_page_analysis">
+		SELECT TWMM.MENU_ID                                    AS "menu_id"  
+		,      LPAD(' ',(TWMM.DEPTH*10)-10,'..')||TWMM.MENU_NM AS "menu_nm"
+		,      TWMM.URL                                        AS "url"  
+		,      CASE WHEN CONNECT_BY_ISLEAF = 0 THEN '-'
+		            WHEN CONNECT_BY_ISLEAF = 1 THEN TO_CHAR(NVL(ACC_.CNT,0))
+		        END                                            AS "access_cnt" 
+		  FROM (SELECT MENU_ID , MENU_NM , PRT_MENU_ID , URL , DEPTH , SORT , USE_YN , MENU_DIV
+		          FROM TB_WRMS_MENU_MGT 
+		          WHERE MENU_DIV = 'M'  AND USE_YN = 'Y'
+		          )TWMM
+		  LEFT JOIN (
+              SELECT TSWVAM.MENU_ID , TSWVAM.ACCESS_COUNT CNT
+                 FROM TB_ST_WRMS_VISITE_ALL_MENU TSWVAM
+                WHERE RENEWAL_NO = '1'  
+		  ) ACC_ ON TWMM.MENU_ID = ACC_.MENU_ID 
+		  WHERE TWMM.MENU_ID != '00000000' 
+		CONNECT BY PRIOR TWMM.MENU_ID = TWMM.PRT_MENU_ID
+		  START WITH TWMM.MENU_ID = '00000000' 
+		  ORDER SIBLINGS BY TWMM.DEPTH , TWMM.SORT
+	</sql>
+</mapper>

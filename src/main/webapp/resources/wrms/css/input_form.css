@@ -1,0 +1,63 @@
+
+/******************************************************************************/
+
+.form-button {
+	padding: 0px 8px 0px 8px;
+	height: 30px;
+	font-size: 13px;
+	border-radius: 4px;
+}
+
+.form-control {
+	padding: 4px 4px 4px 4px;
+	height: 30px;
+	font-size: 13px;
+	border-radius: 4px;
+}
+
+.dropdown-menu {
+	font-size: 13px;
+}
+
+input[type="date"]::-webkit-clear-button {
+ -webkit-appearance: none;
+  display: none;
+}
+input[type="date"]::-ms-clear {
+ display: none;
+}
+input[type="date"]::-webkit-inner-spin-button {
+	margin:0px 0px 0px 0px;
+	padding: 0px;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+	-webkit-appearance: none; 
+	margin: 0; 
+}
+
+
+/******************************************************************************/
+
+.form-container {
+	width: 100%;
+	background-color: #e3e3ea;
+	position: relative;
+	padding: 8px;
+	border-bottom: 2px solid #ccc;
+	vertical-align: top;
+}
+
+.form-group {
+	display: inline-block;
+	margin: 0px;
+	padding: 0px;
+}
+
+.form-group label {
+	line-height: 100%;
+	font-weight: normal;
+	font-size: 12px;
+	padding-left: 2px;
+}

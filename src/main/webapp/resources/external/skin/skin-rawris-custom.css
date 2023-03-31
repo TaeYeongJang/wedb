@@ -1,0 +1,35 @@
+/*
+ * Skin: rawris-custom
+ * -----------
+ */
+
+/* skin-rawris-custom Body */
+@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+
+body {
+	font-family:'Noto Sans KR', 'Nanum Gothic', 'µ¸¿ò', 'dotum', 'Helvetica', 'sans-serif';
+	font-weight:400;
+	color: #333333;
+}
+
+/* skin-rawris-custom navbar */
+
+.skin-rawris .sidebar-menu.cst > li > a {
+  border-left: 3px solid transparent;
+  font-weight: 500;
+}
+
+.skin-rawris .main-sidebar.cst {
+  background-color: #ffffff;
+}
+
+.skin-rawris .sidebar-menu > li:hover > a,
+.skin-rawris .sidebar-menu > li.active > a {
+  color: #333333;
+  background: #ffffff;
+}
+
+.skin-rawris .sidebar-menu > li > .treeview-menu.cst {
+  background: #ffffff;
+  padding-left: 0px;
+}

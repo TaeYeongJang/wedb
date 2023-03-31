@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+<mapper namespace="rawris.wrms.login">
+	
+	<select id="list_common_addr_sd_group" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT SIDO_CODE AS "adm_code"
+			 , SIDO_NAME AS "adm_name"
+	      FROM VI_ADDR_CODE_INFO
+	  GROUP BY SIDO_CODE, SIDO_NAME
+	  ORDER BY SIDO_CODE
+	</select>
+	
+	<select id="list_common_addr_sgg_group" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT SIGUNGU_CODE AS "adm_code"
+			 , SIGUNGU_NAME AS "adm_name"
+		  FROM VI_ADDR_CODE_INFO
+		 WHERE SIDO_CODE = #{s_juso_do}
+	  ORDER BY SIGUNGU_CODE 
+	</select>
+	
+	<select id="list_common_buseo_group" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT SUBSTR(TRIB.BUSEO_CODE, 1, 3) AS "buseo_head_code"
+			 , TRIB.BUSEO_CODE AS "buseo_branch_code"
+			 , TRIB.BUSEO_NAME AS "buseo_name"
+		  FROM TB_R3_INFO_BUSEO TRIB
+		 WHERE 1 = 1
+		<choose>
+			<when test="s_buseo_head_code != null and s_buseo_head_code != ''">AND TRIB.BUSEO_PCODE LIKE #{s_buseo_head_code} || '%'</when>
+			<otherwise>AND TRIB.BUSEO_LEVEL = '1' /*AND (TRIB.BUSEO_CODE LIKE '3%' OR TRIB.BUSEO_CODE LIKE '4%')*/</otherwise> <!-- 22.05.20. 회원가입 시 본사 나오게 수정 -->
+		</choose>
+	  ORDER BY TRIB.BUSEO_CODE 
+	</select>
+	
+	<select id="dup_user_info" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT COUNT(TUI.USER_ID) AS "id_cnt"
+		  FROM TB_USER_INFO TUI
+		 WHERE TUI.USER_ID = #{user_email} OR TUI.USER_EMAIL = #{user_email}
+	</select>
+	
+	<insert id="ins_user_info" parameterType="CommonMap">
+		INSERT INTO TB_USER_INFO( USER_ID
+								, USER_LEVEL
+								, USER_ROLE
+								, USER_NAME
+								, USER_PASSWORD
+								, USER_EMAIL
+								, USER_PHONE_OFFICE
+								, ORG_CODE
+								, ORG_NAME
+						 		, ADM_CODE
+								, BUILDING_ADMIN_NO
+								, DATE_REG
+								, DATE_MOD
+								, USER_EKR_YN
+								, USER_SMS_YN
+								, USER_COM_YN
+								, BUSEO_CODE
+								, USER_ID_TYPE 
+								, USER_TYPE )
+						 VALUES ( #{user_id}
+						 		, #{user_level}
+						 		, #{user_role}
+						 		, #{user_name}
+						 		, #{user_password}
+						 		, #{user_email}
+						 		, #{user_phone_office}
+						 		, #{org_code}
+						 		, #{org_name}
+						 		, #{adm_code}
+						 		, #{building_admin_no}
+						 		, SYSDATE
+						 		, NULL
+						 		, #{user_ekr_yn}
+						 		, #{user_sms_yn}
+						 		, #{user_com_yn}
+						 		, #{buseo_code}
+						 		, #{user_id_type}
+						 		, #{user_type} )
+	</insert>
+	
+	<select id="chk_user_email" parameterType="CommonMap" resultType="CommonMap">
+		SELECT USER_ID    AS "user_id"
+		     , USER_NAME  AS "user_name"
+		     , USER_EMAIL AS "user_email"
+		     , USER_TYPE  AS "user_type"
+		  FROM TB_USER_INFO
+		 WHERE USER_ID = #{user_id} 
+		   AND USER_PASSWORD = #{user_password}
+		   AND USER_ID_TYPE = #{user_id_type}
+	</select>
+	
+	<select id="dup_chk_user_email" parameterType="CommonMap" resultType="CommonMap">
+		SELECT COUNT(USER_EMAIL) AS "email_cnt"
+		  FROM TB_USER_INFO
+		 WHERE USER_ID = #{user_email}
+		    OR USER_EMAIL = #{user_email}
+	</select>
+	
+	<update id="upd_user_info" parameterType="CommonMap">
+		UPDATE TB_USER_INFO 
+		<if test="user_email != null and user_email != ''">SET USER_EMAIL = #{user_email}</if>
+		<if test="user_password != null and user_password != ''">SET USER_PASSWORD = #{user_password}</if>
+		 WHERE USER_ID = #{user_id} 
+	</update>
+	 
+</mapper>

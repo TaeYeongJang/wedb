@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="rawris.wrms.searchform">
+
+	<select id="list_qms_combo_data" parameterType="CommonMap" resultType="CommonMap">
+		 SELECT  A.CD_NM as "cd_nm", A.CD as "cd"
+           FROM TB_QMS_CD A
+		  WHERE A.GRP_CD = #{key_word}
+		    AND A.USE_YN = 'Y'
+		    <if test='attr1 != null and attr1 != ""'> 
+			   AND A.ATTR1 = #{attr1}
+		    </if>
+	</select>
+	
+	<select id="list_base_combo_data" parameterType="CommonMap" resultType="CommonMap">
+		 SELECT  A.CD_NM as "cd_nm", A.CD as "cd"
+           FROM TB_EQUIP_BASE_CODE A
+		  WHERE A.GRP_CD = #{key_word}
+		    AND A.USE_YN = 'Y'
+	    <if test='attr1 == "1"'>	
+		    AND ATTR1 IN ( 1, 0)
+	    </if>
+   		<if test='attr1 == "2"'>	
+		    AND ATTR1 IN ( 2, 0)
+	    </if>
+	   ORDER BY ORDER_SEQ
+	</select>
+	
+	<!-- 지역본부 리스트 -->
+	<select id="list_for_buseo_head_list" parameterType="CommonMap" resultType="CommonMap">
+		SELECT		SUBSTR(VSIB.BUSEO_CODE, 1, 3)AS "buseo_head_code"
+		,			VSIB.BUSEO_NAME			AS "buseo_head_name"
+		FROM		TB_R3_INFO_BUSEO VSIB
+		WHERE		VSIB.BUSEO_LEVEL = 1
+		AND			(VSIB.BUSEO_CODE LIKE '3%' OR VSIB.BUSEO_CODE LIKE '4%')
+		ORDER BY	VSIB.BUSEO_CODE
+	</select>
+	
+	<!-- 염도계 지역본부 리스트 -->
+	<select id="list_for_buseo_head_list_salt" parameterType="CommonMap" resultType="CommonMap">
+		SELECT		SUBSTR(VSIB.BUSEO_CODE, 1, 3)AS "buseo_head_code"
+		,			VSIB.BUSEO_NAME			AS "buseo_head_name"
+		FROM		TB_R3_INFO_BUSEO VSIB
+		WHERE		VSIB.BUSEO_LEVEL = 1
+		AND			( substr(VSIB.BUSEO_CODE,0,3) 
+                      in (
+	                        select distinct substr(BUSEO_CODE,0,3) 
+	                        from TB_SALT_INFO_BASE
+	                       where equip_use_yn = 'Y' 
+	                        ) 
+                    OR VSIB.BUSEO_CODE LIKE '4%')
+		ORDER BY	VSIB.BUSEO_CODE
+	</select>
+
+	<!-- 본부 선택 시 지사 리스트 -->
+	<select id="list_for_buseo_branch_list" parameterType="CommonMap" resultType="CommonMap">
+		SELECT		VSIB.BUSEO_CODE			AS "buseo_branch_code"
+		,			VSIB.BUSEO_NAME			AS "buseo_branch_name"
+		FROM		TB_R3_INFO_BUSEO VSIB
+		WHERE		VSIB.BUSEO_PCODE LIKE #{s_buseo_head_code} || '%'
+		ORDER BY	VSIB.BUSEO_CODE
+	</select>
+	
+	<!--유량정보, 공급량집계 본부 선택 시 지사 리스트 매닝제거-->
+	<select id="list_for_buseo_branch_list_water" parameterType="CommonMap" resultType="CommonMap">
+		 <if test="s_type != 'sisul'">	
+			SELECT		VSIB.BUSEO_CODE			AS "buseo_branch_code"
+			,			VSIB.BUSEO_NAME			AS "buseo_branch_name"
+			FROM		TB_R3_INFO_BUSEO VSIB
+	                  , TB_EQUIP_INFO_BASE a
+					  , TB_EQUIP_INFO_DETAIL_WATERWAY b
+			WHERE	    a.BUSEO_CD = VSIB.BUSEO_CODE
+			  and       a.EQUIP_NO = b.EQUIP_NO
+		      and       b.EQUIP_VOLCAL_METHOD_CODE != '01'	
+			  and       VSIB.BUSEO_PCODE  LIKE #{s_buseo_head_code} || '%'
+	        group by    VSIB.BUSEO_CODE, VSIB.BUSEO_NAME	       
+			ORDER BY	VSIB.BUSEO_CODE
+		 </if>
+		 <if test="s_type == 'sisul'">
+				 WITH ADATA AS (
+				                  SELECT A.EQUIP_STANDARD_CODE,
+				                         A.EQUIP_NO,
+				                         B.BUSEO_CODE,
+				                         B.BUSEO_NAME,
+				                         A.FAC_KIND_CODE
+				                    FROM TB_EQUIP_INFO_BASE A
+				              LEFT OUTER JOIN TB_R3_INFO_BUSEO B ON A.BUSEO_CD = B.BUSEO_CODE 
+				                   WHERE TRIM(A.FAC_KIND_CODE) IN ( '1', '2', '3', '5', 'R')	 
+				                   AND A.EQUIP_USE_YN = 'Y'
+				                   AND A.EQUIP_MANAGEMENT_GBN_CODE = '01'	 
+				                   AND B.BUSEO_PCODE LIKE #{s_buseo_head_code} || '%'            
+				)
+				, BDATA AS 
+				(
+				                  SELECT BUSEO_CODE,
+				                         BUSEO_NAME,
+				                         EQUIP_NO
+				                    FROM ADATA  
+				                   WHERE FAC_KIND_CODE IN ('R')	
+				                     AND EQUIP_STANDARD_CODE IN (
+				                                                   SELECT EQUIP_STANDARD_CODE 
+				                                                     FROM ADATA 
+				                                                    WHERE FAC_KIND_CODE = '1'
+				                                                )
+				            UNION ALL
+				                  SELECT BUSEO_CODE,
+				                         BUSEO_NAME,
+				                         EQUIP_NO
+				                    FROM ADATA  
+				                   WHERE FAC_KIND_CODE IN ( '2', '3', '5')	
+				)
+		        SELECT A.BUSEO_CODE AS "buseo_branch_code", 
+		               A.BUSEO_NAME AS "buseo_branch_name"
+		          FROM BDATA  A
+	   LEFT OUTER JOIN TB_EQUIP_INFO_DETAIL_WATERWAY C ON A.EQUIP_NO = C.EQUIP_NO 
+		         WHERE C.EQUIP_VOLCAL_METHOD_CODE != '01'
+		      GROUP BY A.BUSEO_CODE, A.BUSEO_NAME
+		      ORDER BY A.BUSEO_CODE
+	     </if>		
+	</select>
+	
+	<!-- 염도계 본부 선택 시 지사 리스트 -->
+	<select id="list_for_buseo_branch_list_salt" parameterType="CommonMap" resultType="CommonMap">
+		SELECT		VSIB.BUSEO_CODE			AS "buseo_branch_code"
+		,			VSIB.BUSEO_NAME			AS "buseo_branch_name"
+		FROM		TB_R3_INFO_BUSEO VSIB
+		WHERE		VSIB.BUSEO_CODE in (select distinct BUSEO_CODE
+                      					  from TB_SALT_INFO_BASE 
+                                         where equip_use_yn = 'Y'
+                                           and equip_auto_yn = 'Y'
+                                           <choose>
+												<when test='s_buseo_head_code == "400"'>	
+												 	and BUSEO_CODE like '4%'
+											 	</when>
+											 	<otherwise>
+											 		and BUSEO_CODE like  #{s_buseo_head_code} || '%'
+											 	</otherwise>
+										 	</choose>
+                                       )
+		ORDER BY	VSIB.BUSEO_CODE
+	</select>
+
+
+	<!-- 품질관리 - 자료관리 - 부서코드 조회   -->
+	<select id="qms_sisul_list_from_buseo_branch_code" parameterType="CommonMap" resultType="CommonMap">	
+			WITH A_DATA  AS (
+						   SELECT	
+						                A.EQUIP_NAME||'[계측]'    AS EQUIP_NAME							                                            
+						        ,       E.PARAM_MNG_NO          AS PARAM_MNG_NO 
+						        ,       '1'                  	 AS GBN
+								FROM	
+									TB_EQUIP_INFO_BASE A
+								    INNER JOIN TB_QMS_PARAM_MNG E ON A.EQUIP_NO = E.EQUIP_NO AND E.GUBUN =  1
+						        WHERE A.FAC_KIND_CODE = '1'
+						          AND A.EQUIP_USE_YN = 'Y'
+						          AND A.EQUIP_MANAGEMENT_GBN_CODE = '01'
+						          and a.buseo_cd = #{s_buseo_branch_code}
+						 )
+			, B_DATA AS ( 
+						        SELECT	
+						                A.FAC_NAME||'[RIMS]'                                                                                               
+						        ,       C.PARAM_MNG_NO    
+						        ,       '2'                  	AS GBN                                         
+								FROM	
+									TB_KTD_WATER_SISUL A
+								    INNER JOIN TB_QMS_PARAM_MNG C ON A.FAC_CODE = C.EQUIP_STANDARD_CODE AND C.GUBUN =  2
+						        WHERE 1=1
+						        AND A.FLAG != 0
+						        and a.buseo_cd = #{s_buseo_branch_code}
+			)
+			, U_DATA AS (
+						                SELECT * FROM A_DATA
+						            UNION ALL 
+						                SELECT * FROM B_DATA
+            )
+			SELECT 
+			       A.EQUIP_NAME			                           AS "equip_name"
+            ,      A.PARAM_MNG_NO                                  AS "param_mng_no"
+			FROM U_DATA A
+			WHERE 1=1
+			<if test='s_gbn == "1"'>
+				AND GBN = '1'
+			</if>
+			<if test='s_gbn == "2"'>
+				AND GBN = '2'
+			</if>
+			ORDER BY  A.EQUIP_NAME
+	</select>
+	
+	<!-- 품질관리 - 품질수행 - 부서코드 조회 -->
+	<select id="qms_auto_sisul_list_from_buseo_branch_code" parameterType="CommonMap" resultType="CommonMap">	
+			WITH A_DATA  AS (
+						   SELECT	
+						                A.EQUIP_NAME||'[계측]'    AS EQUIP_NAME							                                            
+						        ,       TO_CHAR(A.EQUIP_NO)      AS EQUIP_NO
+						        ,       '1'                  	 AS GBN
+								FROM	
+									TB_EQUIP_INFO_BASE A
+								    INNER JOIN TB_QMS_PARAM_MNG E ON A.EQUIP_NO = E.EQUIP_NO AND E.GUBUN =  1
+						        WHERE A.FAC_KIND_CODE = '1'
+						          AND A.EQUIP_USE_YN = 'Y'
+						          and a.buseo_cd = #{s_buseo_branch_code}
+						 )
+			, B_DATA AS ( 
+						        SELECT	
+						                A.FAC_NAME||'[RIMS]' 	AS EQUIP_NAME	                                                                                               
+						        ,       A.FAC_CODE   		 	AS EQUIP_NO 
+						        ,       '2'                  	AS GBN                                         
+								FROM	
+									TB_KTD_WATER_SISUL A
+								    INNER JOIN TB_QMS_PARAM_MNG C ON A.FAC_CODE = C.EQUIP_STANDARD_CODE AND C.GUBUN =  2
+						        WHERE A.FLAG != 0
+						        and a.buseo_cd = #{s_buseo_branch_code}
+			)
+			, U_DATA AS (
+						                SELECT * FROM A_DATA
+						            UNION ALL 
+						                SELECT * FROM B_DATA
+            )
+			SELECT 
+			       A.EQUIP_NAME			                AS "equip_name"
+            ,      A.EQUIP_NO                           AS "equip_no"
+			FROM U_DATA A
+			WHERE 1=1
+			<if test='s_gbn == "1"'>
+				AND GBN = '1'
+			</if>
+			<if test='s_gbn == "2"'>
+				AND GBN = '2'
+			</if>
+			ORDER BY  A.EQUIP_NAME
+	</select>
+	
+	<!-- 품질관리 - 시설명 조회 -->
+	<select id="qms_sisul_list_from_equip_name" parameterType="CommonMap" resultType="CommonMap">	
+			WITH A_DATA  AS (
+						   SELECT	
+						                A.EQUIP_NAME||'[계측]'    AS EQUIP_NAME							                                            
+						        ,       TO_CHAR(A.EQUIP_NO)      AS EQUIP_NO
+						        ,       '1'                  	 AS GBN
+								FROM	
+									TB_EQUIP_INFO_BASE A
+								    INNER JOIN TB_QMS_PARAM_MNG E ON A.EQUIP_NO = E.EQUIP_NO AND E.GUBUN =  1
+						        WHERE A.FAC_KIND_CODE = '1'
+						          AND A.EQUIP_USE_YN = 'Y'
+						          AND A.EQUIP_NAME LIKE '%'||#{key_word}||'%'
+						 )
+			, B_DATA AS ( 
+						        SELECT	
+						                A.FAC_NAME||'[RIMS]' 	AS EQUIP_NAME	                                                                                               
+						        ,       A.FAC_CODE   		 	AS EQUIP_NO 
+						        ,       '2'                  	AS GBN                                         
+								FROM	
+									TB_KTD_WATER_SISUL A
+								    INNER JOIN TB_QMS_PARAM_MNG C ON A.FAC_CODE = C.EQUIP_STANDARD_CODE AND C.GUBUN =  2
+						        WHERE A.FLAG != 0
+						          AND A.FAC_NAME LIKE '%'||#{key_word}||'%'
+			)
+			, U_DATA AS (
+						                SELECT * FROM A_DATA
+						            UNION ALL 
+						                SELECT * FROM B_DATA
+            )
+			SELECT 
+			       A.EQUIP_NAME			                AS "equip_name"
+            ,      A.EQUIP_NO                           AS "equip_no"
+			FROM U_DATA A
+			WHERE 1=1
+			<if test='s_gbn == "1"'>
+				AND GBN = '1'
+			</if>
+			<if test='s_gbn == "2"'>
+				AND GBN = '2'
+			</if>
+			ORDER BY  A.EQUIP_NAME
+	</select>
+	
+	<!-- 미래강우 림스 시설명 조회 -->
+	<select id="rims_sisul_list_from_buseo_branch_code" parameterType="CommonMap" resultType="CommonMap">	
+			with a_data as (
+                    select max(f_cast_time) f_cast_time                       
+                     from tb_kma_maple_prcp_res_curr                                              
+                    where f_cast_time  <![CDATA[ >= ]]>  sysdate -1/24
+                      and f_cast_time  <![CDATA[ <= ]]>  sysdate
+			                )
+			, b_data as (
+			                select distinct fac_code 
+			                  from (
+			                            select distinct fac_code 
+			                              from tb_kma_maple_prcp_res_map_a                            
+			                             where f_cast_time = (
+			                                                      select f_cast_time                       
+			                                                        from a_data                                              
+			                                                  )
+			                        union all 
+			                             select distinct fac_code 
+			                              from tb_kma_maple_prcp_res_map_b                          
+			                             where f_cast_time = (
+			                                                      select f_cast_time                       
+			                                                        from a_data                                              
+			                                                  )
+			                        )
+			             )
+			    select  a.fac_name as "fac_name"
+			          , a.fac_code as "fac_code"
+			      from TB_KTD_WATER_SISUL a
+			inner join b_data b on a.fac_code = b.fac_code
+			     where a.buseo_cd = #{s_buseo_branch_code}		       
+			  order by a.fac_name
+	</select>
+
+	<select id="select_qms_reason_list" parameterType="CommonMap" resultType="CommonMap">	
+		SELECT CD    AS "qms_cd"
+		     , CD_NM AS "qms_cd_nm"
+		FROM TB_QMS_CD
+		WHERE GRP_CD = #{s_grp_cd}	
+		  AND ATTR1 IN ( #{s_attr1_a}, #{s_attr1_b}, #{s_attr1_c} )
+		ORDER BY ATTR1, CD_NM
+	</select>
+	
+	<select id="select_qms_list" parameterType="CommonMap" resultType="CommonMap">	
+		SELECT CD    AS "qms_cd"
+		     , CD_NM AS "qms_cd_nm"
+		FROM TB_QMS_CD
+		WHERE GRP_CD = #{s_grp_cd}	
+		ORDER BY GRP_CD
+	</select>
+
+	<!-- 유량정보 (시설별) 시설목록 -->
+	<select id="sisul_list_from_buseo_branch_code" parameterType="CommonMap" resultType="CommonMap">	
+		<if test="s_type != 'sisul'">
+			SELECT	TEIB.EQUIP_NO    			AS "equip_no" 
+			,       TEIB.EQUIP_NAME  			AS "equip_name"
+			,		TEIB.EQUIP_STANDARD_CODE	AS "equip_standard_code"
+			,       TEIB.EQUIP_SUB_ID           AS "equip_sub_id"
+			FROM	TB_EQUIP_INFO_BASE TEIB
+			<if test="s_type == 'flow' or s_type == 'flow_sum'">
+				JOIN  TB_EQUIP_INFO_DETAIL_WATERWAY B ON TEIB.EQUIP_NO = B.EQUIP_NO AND B.EQUIP_VOLCAL_METHOD_CODE != '01'
+			</if>
+			WHERE	TEIB.EQUIP_USE_YN 	= 'Y'
+			AND		TEIB.BUSEO_CD  	= #{s_buseo_branch_code}
+			AND     TEIB.EQUIP_MANAGEMENT_GBN_CODE = '01'
+			<choose>
+				<when test="s_type == 'flow'">
+					AND	TRIM(TEIB.FAC_KIND_CODE)	in ('R', '2', '3','4', '5')
+				</when>
+				<when test="s_type == 'infoWater'">
+					AND	TRIM(TEIB.FAC_KIND_CODE)	in ('R', '2', '3', '4', '5', '9', '0')
+				</when>
+			</choose>
+			<if test="s_fac_kind_code != null and s_fac_kind_code != '99'">
+				AND	TRIM(TEIB.FAC_KIND_CODE)	= #{s_fac_kind_code}
+			</if>		
+				ORDER BY EQUIP_NAME  
+		</if>
+			
+		<if test="s_type == 'sisul'">
+			SELECT		A.EQUIP_NO    			AS "equip_no" 
+				,       A.EQUIP_NAME  			AS "equip_name"
+				,		A.EQUIP_STANDARD_CODE	AS "equip_standard_code"
+				,       A.EQUIP_SUB_ID          AS "equip_sub_id"
+				,       A.CNT                   AS "cnt"
+				,       A.EQUIP_VOLCAL_METHOD_CODE 
+			  FROM (
+				        SELECT	TEIB.EQUIP_NO    	
+		                ,       TEIB.EQUIP_NAME  			
+		                ,		TEIB.EQUIP_STANDARD_CODE	
+		                ,       TEIB.EQUIP_SUB_ID           
+		                ,       TEIB2.CNT                   
+		                ,       B.EQUIP_VOLCAL_METHOD_CODE   
+		                FROM	TB_EQUIP_INFO_BASE TEIB
+		                INNER JOIN (
+		                                SELECT  COUNT(A.EQUIP_NO) AS CNT
+		                                ,       A.EQUIP_STANDARD_CODE
+		                                FROM    TB_EQUIP_INFO_BASE A
+		                                GROUP BY A.EQUIP_STANDARD_CODE
+		                            )TEIB2 ON TEIB.EQUIP_STANDARD_CODE = TEIB2.EQUIP_STANDARD_CODE
+		                LEFT JOIN  TB_EQUIP_INFO_DETAIL_WATERWAY B ON TEIB.EQUIP_NO = B.EQUIP_NO 
+		                WHERE	TEIB.EQUIP_USE_YN 	= 'Y'
+		                AND		TEIB.BUSEO_CD  	= #{s_buseo_branch_code}
+		                AND     TEIB.EQUIP_MANAGEMENT_GBN_CODE = '01'
+		                AND	TRIM(TEIB.FAC_KIND_CODE)	IN ('1', '2', '3', '5')
+		                AND TEIB2.CNT > 1	
+		                <if test="s_fac_kind_code != null and s_fac_kind_code != '99'">
+							AND	TRIM(TEIB.FAC_KIND_CODE)	= #{s_fac_kind_code}
+						 </if>	
+	              ) A
+	       WHERE ( A.EQUIP_VOLCAL_METHOD_CODE != '01' OR A.EQUIP_VOLCAL_METHOD_CODE IS NULL )
+	       ORDER BY EQUIP_NAME
+		</if>		
+	</select>
+
+
+	<!-- 시설 명으로 검색  -->
+	<select id="sisul_list_from_name" parameterType="CommonMap" resultType="CommonMap">
+		 SELECT		A.EQUIP_NO    			AS "equip_no" 
+			,       A.EQUIP_NAME  			AS "equip_name"
+			,		A.EQUIP_STANDARD_CODE	AS "equip_standard_code"
+			,       A.EQUIP_SUB_ID          AS "equip_sub_id"
+			,       A.CNT                   AS "cnt"
+		<if test="s_type == 'sisul'">
+			,       A.EQUIP_VOLCAL_METHOD_CODE 
+		</if>
+		  FROM (
+				SELECT	TEIB.EQUIP_NO    			                AS equip_no
+                ,       TEIB.EQUIP_NAME                             AS equip_name
+                ,		TEIB.EQUIP_STANDARD_CODE	                AS equip_standard_code
+                ,       TEIB.EQUIP_SUB_ID                           AS equip_sub_id
+                ,       TEIB2.CNT                                   AS cnt
+                ,       TEIB.FAC_KIND_CODE
+            <if test="s_type == 'sisul'">
+				,       B.EQUIP_VOLCAL_METHOD_CODE
+			</if>
+				FROM	TB_EQUIP_INFO_BASE TEIB
+				INNER JOIN (
+							SELECT  count(equip_no) AS cnt
+							,       EQUIP_STANDARD_CODE
+							FROM    TB_EQUIP_INFO_BASE
+							GROUP BY EQUIP_STANDARD_CODE
+							)TEIB2 ON TEIB.EQUIP_STANDARD_CODE = TEIB2.EQUIP_STANDARD_CODE
+				<if test="s_type == 'flow'">
+					INNER JOIN  TB_EQUIP_INFO_DETAIL_WATERWAY B ON B.EQUIP_NO = TEIB.EQUIP_NO AND B.EQUIP_VOLCAL_METHOD_CODE != '01'
+				</if>
+				<if test="s_type == 'sisul'">
+					LEFT OUTER JOIN  TB_EQUIP_INFO_DETAIL_WATERWAY B ON TEIB.EQUIP_NO = B.EQUIP_NO
+				</if>
+				WHERE	TEIB.EQUIP_USE_YN 	= 'Y'
+					AND TEIB.EQUIP_NAME LIKE '%'||#{key_word}||'%'
+					AND	TRIM(TEIB.EQUIP_MANAGEMENT_GBN_CODE) = ('01')
+				<if test="user_buseo_code != 3">
+					AND TEIB.BUSEO_CD LIKE #{user_buseo_code}||'%'  /* 로그인한 User의 부서코드  (사용자부서의 수로부유량계측 장비만 조회가능)*/
+				</if>
+			<choose>
+				<when test="s_type == 'infoReser' or s_type == 'infoMeteo' or s_type == 'reser_rpt' ">
+					AND	TRIM(TEIB.FAC_KIND_CODE)	in ('1')
+				</when>
+				<when test="s_type == 'sisul'">
+					AND	TRIM(TEIB.FAC_KIND_CODE)	in ('1', '2', '3', '5')
+					AND TEIB2.CNT > 1
+				</when>
+				<when test="s_type == 'flow'">
+					AND	TRIM(TEIB.FAC_KIND_CODE)	in ('R', '2', '3','4', '5')
+				</when>
+				<when test="s_type == 'infoWater'">
+					AND	TRIM(TEIB.FAC_KIND_CODE)	in ('R', '2', '3', '4', '5', '9', '0')
+				</when>
+			</choose>
+			 ) A
+		 <if test="s_type == 'sisul'">
+			  WHERE ( A.EQUIP_VOLCAL_METHOD_CODE != '01' OR A.EQUIP_VOLCAL_METHOD_CODE IS NULL )
+		</if>
+	     ORDER BY EQUIP_NAME
+	</select>
+	
+	
+	<!-- 시설명 검색 후 시설명 선택시 부서, 지사 등 셋팅 위해 정보 가져오기 -->
+	<select id="set_searchform_from_qmsSisulName" parameterType="CommonMap" resultType="CommonMap">
+		WITH A_DATA  AS (
+                    SELECT TO_CHAR(A.EQUIP_NO)	        AS EQUIP_NO		        
+                    ,      A.EQUIP_NAME                 AS EQUIP_NAME	
+                    ,      A.BUSEO_CD                   AS BUSEO_CD	         
+                    ,      'A'                  	    AS GBN 
+                    FROM TB_EQUIP_INFO_BASE A 
+                    INNER JOIN TB_QMS_PARAM_MNG B ON A.EQUIP_NO = B.EQUIP_NO AND B.GUBUN =  1
+                    WHERE A.EQUIP_NO = REGEXP_REPLACE(#{equip_no}, '[^0-9]+')
+                      AND A.EQUIP_USE_YN = 'Y'
+                    UNION ALL	
+                    SELECT	
+                            A.FAC_CODE 	            	                                                                                               
+                    ,       A.FAC_NAME	
+                    ,       A.BUSEO_CD                   AS BUSEO_CD   		 	
+                    ,       'B'                  	      AS GBN                                            
+                    FROM	
+                        TB_KTD_WATER_SISUL A
+                        INNER JOIN TB_QMS_PARAM_MNG B ON A.FAC_CODE = B.EQUIP_STANDARD_CODE AND B.GUBUN =  2
+                    WHERE A.FLAG != 0
+                    AND A.FAC_CODE = #{equip_no}
+		 )
+		      SELECT A.EQUIP_NO			            AS "equip_no"
+				,    SUBSTR(B.BUSEO_PCODE, 1, 3)	AS "buseo_head_code"
+				,    B.BUSEO_CODE	                AS "buseo_branch_code"
+				,    A.EQUIP_NAME		            AS "equip_name" 
+				,    A.GBN		                    AS "gbn" 
+				FROM A_DATA A 
+				LEFT JOIN	TB_R3_INFO_BUSEO B ON A.BUSEO_CD = B.BUSEO_CODE
+	</select>
+	
+	
+	<!-- 시설명 검색 후 시설명 선택시 부서, 지사 등 셋팅 위해 정보 가져오기 -->
+	<select id="set_searchform_from_sisulname" parameterType="CommonMap" resultType="CommonMap">
+		SELECT TEIB.EQUIP_NO			AS "equip_no"
+		,      SUBSTR(VSIB.BUSEO_PCODE, 1, 3)	AS "buseo_head_code"
+		,      VSIB.BUSEO_CODE	AS "buseo_branch_code"
+		,      TEIB.FAC_KIND_CODE		AS "fac_kind_code" 
+		FROM TB_EQUIP_INFO_BASE TEIB 
+		LEFT JOIN	TB_R3_INFO_BUSEO VSIB ON TEIB.BUSEO_CD = VSIB.BUSEO_CODE
+		WHERE TEIB.EQUIP_NO = #{equip_no}
+	</select>
+	
+	<!-- *************************************** -->
+	<!-- ************ 염도계 관련 Query *************-->
+	<!-- *************************************** -->
+	
+	<!-- 지사 선택 시 하부 염도계 목록 가져오기  -->
+	<select id="jisa_salt_list" parameterType="CommonMap" resultType="CommonMap">
+		 SELECT	EQUIP_NO		AS "equip_no"
+		,		EQUIP_NAME		AS "equip_name"
+		FROM	TB_SALT_INFO_BASE 
+		WHERE	BUSEO_CODE = #{s_buseo_branch_code}
+		  and   EQUIP_USE_YN ='Y'
+	</select>
+	
+	<!-- 장비명 검색하기  -->
+	<select id="salt_list_from_name" parameterType="CommonMap" resultType="CommonMap">
+		SELECT	TSIB.EQUIP_NO		AS "equip_no"
+		,		TSIB.EQUIP_NAME		AS "equip_name"
+		FROM	TB_SALT_INFO_BASE TSIB
+		WHERE	TSIB.EQUIP_NAME LIKE '%'||#{key_word}||'%'
+	<if test="user_buseo_code != 3">
+		AND		TSIB.BUSEO_CODE LIKE #{user_buseo_code}||'%'  /* 로그인한 User의 부서코드  (사용자부서의 수로부유량계측 장비만 조회가능)*/
+	</if>
+	</select>
+	
+	<!-- 장비명 검색 후 선택한 장비의 정보 셋팅 -->
+	<select id="set_searchform_from_saltname" parameterType="CommonMap" resultType="CommonMap">
+		SELECT		TSIB.EQUIP_NO					AS "equip_no"
+		,			SUBSTR(VSIB.BUSEO_PCODE, 1, 3)	AS "buseo_head_code"
+		,			VSIB.BUSEO_CODE					AS "buseo_branch_code"
+		FROM		TB_SALT_INFO_BASE TSIB
+		LEFT JOIN	TB_R3_INFO_BUSEO VSIB ON TSIB.BUSEO_CODE = VSIB.BUSEO_CODE
+		WHERE		TSIB.EQUIP_NO = #{equip_no}
+	</select>
+	
+	<!-- 지사 선택 시 지사장, 부장, 사원 정보 가져오기 -->
+	<select id="set_buseo_member" parameterType="CommonMap" resultType="CommonMap">
+		WITH	rstBuseo
+		AS			(
+					SELECT		VSIB.BUSEO_PCODE
+					,			VSIB.BUSEO_PNAME
+					,			VSIB.BUSEO_CODE
+					,			VSIB.BUSEO_NAME
+					FROM		TB_R3_INFO_BUSEO VSIB
+					WHERE		VSIB.BUSEO_TYPE IN (3, 4)
+					AND			VSIB.BUSEO_LEVEL = 2
+					)
+		,		rstCap
+		AS			(
+					SELECT		'1' AS sortNum 
+					,			rb.BUSEO_PCODE
+					,			rb.BUSEO_PNAME
+					,			rb.BUSEO_CODE
+					,			rb.BUSEO_NAME
+					,			VRCIM.HANGUL_NAME
+					,			VRCIM.JIKHAM
+					,			VRCIM.SABUN
+					,			VRCIM.JIKGEUB_CD
+					FROM		rims.COM_INSA_MST@RIMS_MAIN VRCIM
+					INNER JOIN	rstBuseo rb ON rb.BUSEO_CODE = VRCIM.SUB_BUSEO_YMD_CD
+					WHERE		VRCIM.JAEJIK_YN = 'Y'
+					<!-- 2021.04.14 김규남 감독관 요청  -->
+					AND      regexp_like( VRCIM.JIKHAM ,'지사장|단장')
+					<!-- 2021.04.14 김규남 감독관 요청  -->
+					)
+		,		rstBuseoCap
+		AS			(
+					SELECT		'2' AS sortNum 
+					,			rb.BUSEO_PCODE
+					,			rb.BUSEO_PNAME
+					,			rb.BUSEO_CODE
+					,			rb.BUSEO_NAME
+					,			VRCIM.HANGUL_NAME
+					,			VRCIM.JIKHAM
+					,			VRCIM.SABUN
+					,			VRCIM.JIKGEUB_CD
+					FROM		rims.COM_INSA_MST@RIMS_MAIN VRCIM
+					INNER JOIN	rstBuseo rb ON rb.BUSEO_CODE = VRCIM.BUSEO_YMD_CD
+					WHERE		VRCIM.JAEJIK_YN = 'Y'
+					<!-- 2021.04.14 김규남 감독관 요청  -->
+					AND      regexp_like( VRCIM.JIKHAM ,'부장|지소장')
+					<!-- 2021.04.14 김규남 감독관 요청  -->
+					)
+		,		rstBuseoMem
+		AS			(
+					SELECT		'3' AS sortNum 
+					,			rb.BUSEO_PCODE
+					,			rb.BUSEO_PNAME
+					,			rb.BUSEO_CODE
+					,			rb.BUSEO_NAME
+					,			VRCIM.HANGUL_NAME
+					,			VRCIM.JIKHAM
+					,			VRCIM.SABUN
+					,			VRCIM.JIKGEUB_CD
+					FROM		rims.COM_INSA_MST@RIMS_MAIN VRCIM
+					INNER JOIN	rstBuseo rb ON rb.BUSEO_CODE = VRCIM.BUSEO_YMD_CD
+					WHERE		VRCIM.JAEJIK_YN = 'Y'
+					<!-- 2021.04.14 김규남 감독관 요청  -->
+					AND     not  regexp_like( VRCIM.JIKHAM ,'부장|지소장|단장|지사장')
+					<!-- 2021.04.14 김규남 감독관 요청  -->
+					)
+		,		rstView
+		AS			(
+					SELECT * FROM rstCap
+					UNION ALL
+					SELECT * FROM rstBuseoCap
+					UNION ALL
+					SELECT * FROM rstBuseoMem
+					)
+		SELECT		rv.sortNum		AS "sortNum"
+		,			rv.SABUN		AS "sabun"
+		,			rv.BUSEO_PCODE	AS "bonbu_code"
+		,			rv.BUSEO_PNAME	AS "bonbu_name"
+		,			rv.BUSEO_CODE	AS "jisa_code"
+		,			rv.BuSEO_NAME	AS "jisa_name"
+		,			rv.HANGUL_NAME	AS "saName"
+		,			rv.JIKHAM		AS "saJikham"
+		FROM		rstView rv
+		WHERE		rv.BUSEO_CODE = #{s_buseo_code}
+		ORDER BY	rv.BUSEO_PCODE, rv.BUSEO_CODE, rv.sortNum, rv.JIKGEUB_CD, rv.HANGUL_NAME
+	</select>
+	
+	
+	<!-- qms 자료관리 시설명 조회 -->
+	<select id="search_salt_regist_ins_pk" parameterType="CommonMap" resultType="CommonMap">	
+		SELECT		EQUIP_NO
+		FROM		TB_SALT_INFO_BASE 
+		WHERE		EQUIP_NAME = #{s_equip_name}
+		AND         FAC_CODE   = #{s_fac_code}
+	</select>
+</mapper>

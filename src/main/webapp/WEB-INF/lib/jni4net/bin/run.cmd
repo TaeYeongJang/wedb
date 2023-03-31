@@ -1,0 +1,1 @@
+proxygen.exe ..\..\CshapJni.dll -wd ..\..\

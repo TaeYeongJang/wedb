@@ -1,0 +1,862 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="rawris.wrms.listcode">
+	<sql id="pageHeader">
+	    	    <![CDATA[  SELECT * 
+                       FROM ( SELECT COUNT(*) OVER(PARTITION BY "pageNo") AS "totalCount"
+                              ,      COUNT(*) OVER(PARTITION BY "pageNo")+1 - "rownum_" AS "rrownum_"
+                              ,      TT.*    
+                                FROM (SELECT ROWNUM "rownum_" 
+                                      ,      TO_NUMBER(#{rn_top}) / (TO_NUMBER(#{rn_top}) - TO_NUMBER(#{rn_bottom}) )  AS "pageNo"  
+                                      ,      TO_NUMBER(#{rn_top}) - TO_NUMBER(#{rn_bottom})          AS "pageSize" 
+                                      ,      ROW_.* 
+                                        FROM (   ]]> 
+	</sql>
+	
+	<sql id="pageFooter">
+        <![CDATA[                          ) ROW_ 
+                                  ) TT
+                         )
+                  WHERE "rownum_" <= TO_NUMBER(#{rn_top}) AND "rownum_" > TO_NUMBER(#{rn_bottom}) ]]> 
+	</sql> 
+	
+	<sql id="pageHeader2">
+		<![CDATA[
+		SELECT 
+			"totalCount" + 1 - "rownum_" 	AS "rrownum_",
+			w.* 
+		FROM 
+			( 
+			 SELECT 
+				TT.*,
+		       	ROWNUM                               	AS "rownum_",
+			    COUNT(*) OVER(PARTITION BY "pageNo") 	AS "totalCount"
+			 FROM 
+			 	(
+			    SELECT 
+			       ROW_.* , 
+			       TO_NUMBER(#{rn_top}) / (TO_NUMBER(#{rn_top}) - TO_NUMBER(#{rn_bottom}) )  AS "pageNo",  
+			       TO_NUMBER(#{rn_top}) - TO_NUMBER(#{rn_bottom})                 			 AS "pageSize"    
+			    FROM 
+			    	(   
+		]]> 
+	</sql>
+	
+	<sql id="pageFooter2">
+	
+					) ROW_ 
+					<if test="sort_field != null">
+						order by
+						<choose>
+							<when test="sort_field == 'AREA_BENEFICIAL'             or sort_field == 'area_beneficial'             "> "area_beneficial"            </when>
+							<when test="sort_field == 'AREA_FULLWATER'              or sort_field == 'area_fullwater'              "> "area_fullwater"             </when>
+							<when test="sort_field == 'BATTERY_CHECK_YN'            or sort_field == 'battery_check_yn'            "> "battery_check_yn"           </when>
+							<when test="sort_field == 'BRANCH_NAME'                 or sort_field == 'branch_name'                 "> "branch_name"                </when>
+							<when test="sort_field == 'BUSEO_BRANCH_NAME'           or sort_field == 'buseo_branch_name'           "> "buseo_branch_name"          </when>
+							<when test="sort_field == 'BUSEO_CODE'                  or sort_field == 'buseo_code'                  "> "buseo_code"                 </when>
+							<when test="sort_field == 'BUSEO_HEAD_NAME'             or sort_field == 'buseo_head_name'             "> "buseo_head_name"            </when>
+							<when test="sort_field == 'BUSEO_NAME'                  or sort_field == 'buseo_name'                  "> "buseo_name"                 </when>
+							<when test="sort_field == 'BUSEO_PNAME'                 or sort_field == 'buseo_pname'                 "> "buseo_pname"                </when>
+							<when test="sort_field == 'CDTLVL'                      or sort_field == 'cdtlvl'                      "> "cdtlvl"                     </when>
+							<when test="sort_field == 'CHECK_ETC'                   or sort_field == 'check_etc'                   "> "check_etc"                  </when>
+							<when test="sort_field == 'CLASS_CODE'                  or sort_field == 'class_code'                  "> "class_code"                 </when>
+							<when test="sort_field == 'COMPLETE_DAY'                or sort_field == 'complete_day'                "> "complete_day"               </when>
+							<when test="sort_field == 'CONN_CODE'                   or sort_field == 'conn_code'                   "> "conn_code"                  </when>
+							<when test="sort_field == 'CONN_DATE'                   or sort_field == 'conn_date'                   "> "conn_date"                  </when>
+							<when test="sort_field == 'CONN_NAME'                   or sort_field == 'conn_name'                   "> "conn_name"                  </when>
+							<when test="sort_field == 'CONST_DAY'                   or sort_field == 'const_day'                   "> "const_day"                  </when>
+							<when test="sort_field == 'COST'                        or sort_field == 'cost'                        "> "cost"                       </when>
+							<when test="sort_field == 'EQUIP_CDMA_NAME'             or sort_field == 'equip_cdma_name'             "> "equip_cdma_name"            </when>
+							<when test="sort_field == 'EQUIP_CDMA_YN'               or sort_field == 'equip_cdma_yn'               "> "equip_cdma_yn"              </when>
+							<when test="sort_field == 'EQUIP_CODE'                  or sort_field == 'equip_code'                  "> "equip_code"                 </when>
+							<when test="sort_field == 'EQUIP_CONN_STATUS'           or sort_field == 'equip_conn_status'           "> "equip_conn_status"          </when>
+							<when test="sort_field == 'EQUIP_CONN_STATUS_NAME'      or sort_field == 'equip_conn_status_name'      "> "equip_conn_status_name"     </when>
+							<when test="sort_field == 'EQUIP_INSTALL_DATE'          or sort_field == 'equip_install_date'          "> "equip_install_date"         </when>
+							<when test="sort_field == 'EQUIP_INSTALL_DATE'          or sort_field == 'equip_install_date'          "> "equip_install_date"         </when>
+							<when test="sort_field == 'EQUIP_INSTALL_YEAR'          or sort_field == 'equip_install_year'          "> "equip_install_year"         </when>
+							<when test="sort_field == 'EQUIP_KIND'                  or sort_field == 'equip_kind'                  "> "equip_kind"                 </when>
+							<when test="sort_field == 'EQUIP_LAST_CONN_TM'          or sort_field == 'equip_last_conn_tm'          "> "equip_last_conn_tm"         </when>
+							<when test="sort_field == 'EQUIP_MAINTAIN_NO'           or sort_field == 'equip_maintain_no'           "> "equip_maintain_no"          </when>
+							<when test="sort_field == 'EQUIP_MAINTAIN_PROCESS_CODE' or sort_field == 'equip_maintain_process_code' "> "equip_maintain_process_code"</when>
+							<when test="sort_field == 'EQUIP_MAINTAIN_PROCESS_NAME' or sort_field == 'equip_maintain_process_name' "> "equip_maintain_process_name"</when>
+							<when test="sort_field == 'EQUIP_MANAGEMENT_CODE'       or sort_field == 'equip_management_code'       "> "equip_management_code"      </when>
+							<when test="sort_field == 'EQUIP_MANAGEMENT_GBN_CODE'   or sort_field == 'equip_management_gbn_code'   "> "equip_management_gbn_code"  </when>
+							<when test="sort_field == 'EQUIP_MANAGEMENT_GBN_NM'     or sort_field == 'equip_management_gbn_nm'     "> "equip_management_gbn_nm"    </when>
+							<when test="sort_field == 'EQUIP_MODEM_NO'              or sort_field == 'equip_modem_no'              "> "equip_modem_no"             </when>
+							<when test="sort_field == 'EQUIP_MODEM_NO'              or sort_field == 'equip_modem_no'              "> "equip_modem_no"             </when>
+							<when test="sort_field == 'EQUIP_NAME'                  or sort_field == 'equip_name'                  "> "equip_name"                 </when>
+							<when test="sort_field == 'EQUIP_NO'                    or sort_field == 'equip_no'                    "> "equip_no"                   </when>
+							<when test="sort_field == 'EQUIP_OPERATION_STATUS_CODE' or sort_field == 'equip_operation_status_code' "> "equip_operation_status_code"</when>
+							<when test="sort_field == 'EQUIP_OPERATION_STATUS_NAME' or sort_field == 'equip_operation_status_name' "> "equip_operation_status_name"</when>
+							<when test="sort_field == 'EQUIP_REMOVE_DATE'           or sort_field == 'equip_remove_date'           "> "equip_remove_date"          </when>
+							<when test="sort_field == 'EQUIP_REMOVE_REASON'         or sort_field == 'equip_remove_reason'         "> "equip_remove_reason"        </when>
+							<when test="sort_field == 'EQUIP_STANDARD_CODE'         or sort_field == 'equip_standard_code'         "> "equip_standard_code"        </when>
+							<when test="sort_field == 'EQUIP_SUB_ID'                or sort_field == 'equip_sub_id'                "> "equip_sub_id"               </when>
+							<when test="sort_field == 'EQUIP_USE_NM'                or sort_field == 'equip_use_nm'                "> "equip_use_nm"               </when>
+							<when test="sort_field == 'EQUIP_USE_YN'                or sort_field == 'equip_use_yn'                "> "equip_use_yn"               </when>
+							<when test="sort_field == 'EQUIP_VOLCAL_METHOD_CODE'    or sort_field == 'equip_volcal_method_code'    "> "equip_volcal_method_code"   </when>
+							<when test="sort_field == 'FAC_CODE'                    or sort_field == 'fac_code'                    "> "fac_code"                   </when>
+							<when test="sort_field == 'FAC_GROUP_CODE'              or sort_field == 'fac_group_code'              "> "fac_group_code"             </when>
+							<when test="sort_field == 'FAC_KIND_CODE'               or sort_field == 'fac_kind_code'               "> "fac_kind_code"              </when>
+							<when test="sort_field == 'FAC_KIND_NAME'               or sort_field == 'fac_kind_name'               "> "fac_kind_name"              </when>
+							<when test="sort_field == 'FAC_KIND_NM'                 or sort_field == 'fac_kind_nm'                 "> "fac_kind_nm"                </when>
+							<when test="sort_field == 'FAC_KIND_NMKR'               or sort_field == 'fac_kind_nmkr'               "> "fac_kind_nmkr"              </when>
+							<when test="sort_field == 'FAC_NAME'                    or sort_field == 'fac_name'                    "> "fac_name"                   </when>
+							<when test="sort_field == 'FINISH_DATE'                 or sort_field == 'finish_date'                 "> "finish_date"                </when>
+							<when test="sort_field == 'HEAD_NAME'                   or sort_field == 'head_name'                   "> "head_name"                  </when>
+							<when test="sort_field == 'IS_MAINTENANCE_ABLE'         or sort_field == 'is_maintenance_able'         "> "is_maintenance_able"        </when>
+							<when test="sort_field == 'IS_REG_FAV'                  or sort_field == 'is_reg_fav'                  "> "is_reg_fav"                 </when>
+							<when test="sort_field == 'ITEM_BATTERY_VOLT'           or sort_field == 'item_battery_volt'           "> "item_battery_volt"          </when>
+							<when test="sort_field == 'ITEM_FLOW_SPEED'             or sort_field == 'item_flow_speed'             "> "item_flow_speed"            </when>
+							<when test="sort_field == 'ITEM_FLOW_SPEED_2'           or sort_field == 'item_flow_speed_2'           "> "item_flow_speed_2"          </when>
+							<when test="sort_field == 'ITEM_INFO_ONE'               or sort_field == 'item_info_one'               "> "item_info_one"              </when>
+							<when test="sort_field == 'ITEM_INFO_THREE'             or sort_field == 'item_info_three'             "> "item_info_three"            </when>
+							<when test="sort_field == 'ITEM_INFO_TWO'               or sort_field == 'item_info_two'               "> "item_info_two"              </when>
+							<when test="sort_field == 'ITEM_RATE'                   or sort_field == 'item_rate'                   "> "item_rate"                  </when>
+							<when test="sort_field == 'ITEM_RATE_CURR_NUM'          or sort_field == 'item_rate_curr_num'          "> "item_rate_curr_num"         </when>
+							<when test="sort_field == 'ITEM_SOLAR_CURRENT'          or sort_field == 'item_solar_current'          "> "item_solar_current"         </when>
+							<when test="sort_field == 'ITEM_SOLAR_VOLT'             or sort_field == 'item_solar_volt'             "> "item_solar_volt"            </when>
+							<when test="sort_field == 'ITEM_TEMP'                   or sort_field == 'item_temp'                   "> "item_temp"                  </when>
+							<when test="sort_field == 'ITEM_VOLUME_CURR_NUM'        or sort_field == 'item_volume_curr_num'        "> "item_volume_curr_num"       </when>
+							<when test="sort_field == 'ITEM_VOLUME_EQUIP'           or sort_field == 'item_volume_equip'           "> "item_volume_equip"          </when>
+							<when test="sort_field == 'ITEM_VOLUME_RECKONER'        or sort_field == 'item_volume_reckoner'        "> "item_volume_reckoner"       </when>
+							<when test="sort_field == 'ITEM_WLVL'                   or sort_field == 'item_wlvl'                   "> "item_wlvl"                  </when>
+							<when test="sort_field == 'ITEM_WLVL_MAX'               or sort_field == 'item_wlvl_max'               "> "item_wlvl_max"              </when>
+							<when test="sort_field == 'JUSO_FULL_NAME'              or sort_field == 'juso_full_name'              "> "juso_full_name"             </when>
+							<when test="sort_field == 'L_DEFENSE'                   or sort_field == 'l_defense'                   "> "l_defense"                  </when>
+							<when test="sort_field == 'L_FULL'                      or sort_field == 'l_full'                      "> "l_full"                     </when>
+							<when test="sort_field == 'LAST_PROCESS_CODE'           or sort_field == 'last_process_code'           "> "last_process_code"          </when>
+							<when test="sort_field == 'LSEQNUM'                     or sort_field == 'lseqnum'                     "> "lseqnum"                    </when>
+							<when test="sort_field == 'MAINTAIN_PROCESS_CLASSNM'    or sort_field == 'maintain_process_classnm'    "> "maintain_process_classnm"   </when>
+							<when test="sort_field == 'MAINTAIN_PROCESS_NAME'       or sort_field == 'maintain_process_name'       "> "maintain_process_name"      </when>
+							<when test="sort_field == 'MAINTAIN_STS_NAME'           or sort_field == 'maintain_sts_name'           "> "maintain_sts_name"          </when>
+							<when test="sort_field == 'MAINTENANCE_STS'             or sort_field == 'maintenance_sts'             "> "maintenance_sts"            </when>
+							<when test="sort_field == 'MNGT_TYPE'                   or sort_field == 'mngt_type'                   "> "mngt_type"                  </when>
+							<when test="sort_field == 'MODEM_CHECK_YN'              or sort_field == 'modem_check_yn'              "> "modem_check_yn"             </when>
+							<when test="sort_field == 'OBS_CHAR'                    or sort_field == 'obs_char'                    "> "obs_char"                   </when>
+							<when test="sort_field == 'OBS_DATE'                    or sort_field == 'obs_date'                    "> "obs_date"                   </when>
+							<when test="sort_field == 'OBS_DATE'                    or sort_field == 'obs_date'                    "> "obs_date"                   </when>
+							<when test="sort_field == 'OBS_DATE'                    or sort_field == 'obs_date'                    "> "obs_date"                   </when>
+							<when test="sort_field == 'OBS_YN_FLOWSPEED'            or sort_field == 'obs_yn_flowspeed'            "> "obs_yn_flowspeed"           </when>
+							<when test="sort_field == 'ORG_GROUP'                   or sort_field == 'org_group'                   "> "org_group"                  </when>
+							<when test="sort_field == 'QUIP_NAME'                   or sort_field == 'quip_name'                   "> "quip_name"                  </when>
+							<when test="sort_field == 'R_SPILL_GATE_COUNT'          or sort_field == 'r_spill_gate_count'          "> "r_spill_gate_count"         </when>
+							<when test="sort_field == 'R_SPILL_GATE_STANDARD_B'     or sort_field == 'r_spill_gate_standard_b'     "> "r_spill_gate_standard_b"    </when>
+							<when test="sort_field == 'R_SPILL_GATE_TYPE'           or sort_field == 'r_spill_gate_type'           "> "r_spill_gate_type"          </when>
+							<when test="sort_field == 'R_SPILL_TYPE'                or sort_field == 'r_spill_type'                "> "r_spill_type"               </when>
+							<when test="sort_field == 'R_TOTAL'                     or sort_field == 'r_total'                     "> "r_total"                    </when>
+							<when test="sort_field == 'R_TOTAL_STORAGE'             or sort_field == 'r_total_storage'             "> "r_total_storage"            </when>
+							<when test="sort_field == 'R_TOWER_TYPE'                or sort_field == 'r_tower_type'                "> "r_tower_type"               </when>
+							<when test="sort_field == 'R_TYPE'                      or sort_field == 'r_type'                      "> "r_type"                     </when>
+							<when test="sort_field == 'REG_DAY'                     or sort_field == 'reg_day'                     "> "reg_day"                    </when>
+							<when test="sort_field == 'REG_NO'                      or sort_field == 'reg_no'                      "> "reg_no"                     </when>
+							<when test="sort_field == 'REG_ORG'                     or sort_field == 'reg_org'                     "> "reg_org"                    </when>
+							<when test="sort_field == 'REQUEST_DATE'                or sort_field == 'request_date'                "> "request_date"               </when>
+							<when test="sort_field == 'SALT_TYPE'                   or sort_field == 'salt_type'                   "> "salt_type"                  </when>
+							<when test="sort_field == 'SALT_YN'                     or sort_field == 'salt_yn'                     "> "salt_yn"                    </when>
+							<when test="sort_field == 'SAVE_DATE'                   or sort_field == 'save_date'                   "> "save_date"                  </when>
+							<when test="sort_field == 'SENSOR_CHECK_YN'             or sort_field == 'sensor_check_yn'             "> "sensor_check_yn"            </when>
+							<when test="sort_field == 'SOLAR_CHECK_YN'              or sort_field == 'solar_check_yn'              "> "solar_check_yn"             </when>
+							<when test="sort_field == 'TRANSPORT_DATE'              or sort_field == 'transport_date'              "> "transport_date"             </when>
+							<when test="sort_field == 'WTMPLVL'                     or sort_field == 'wtmplvl'                     "> "wtmplvl"                    </when>
+							<when test="sort_field == 'EQUIP_SENSOR_TYPE'           or sort_field == 'equip_sensor_type'           "> "equip_sensor_type"          </when>
+							<when test="sort_field == 'L_FLOOD'                   	or sort_field == 'l_flood'                     "> "l_flood"                    </when>
+							<when test="sort_field == 'MAX_WT_LEVEL'                or sort_field == 'max_wt_level'                "> "max_wt_level"               </when>
+							<when test="sort_field == 'MIN_WT_LEVEL'                or sort_field == 'min_wt_level'                "> "min_wt_level"               </when>
+							<when test="sort_field == 'MIN10_CHG_GRADIENT'          or sort_field == 'min10_chg_gradient'          "> "min10_chg_gradient"         </when>
+							<when test="sort_field == 'WIN_LENGTH'              	or sort_field == 'win_length'                  "> "win_length"                 </when>
+							<when test="sort_field == 'QMS_METHOD'                  or sort_field == 'qms_method'                  "> "qms_method"                 </when>
+							<when test="sort_field == 'UPDATE_DATE'           		or sort_field == 'update_date'           	   "> "update_date"          	   </when>
+							<when test="sort_field == 'GUBUN'           			or sort_field == 'gubun'           	   		   "> "gubun"          	   		   </when>
+							<when test="sort_field == 'W_HEIGHT'        			or sort_field == 'w_height'         		   "> "w_height"      			   </when>
+							<when test="sort_field == 'RSVR_VOLM'                  	or sort_field == 'rsvr_volm'                   "> "rsvr_volm"                  </when>
+							<when test="sort_field == 'RSVR_RATE'           		or sort_field == 'rsvr_rate'           	   	   "> "rsvr_rate"          	   	   </when>
+							<when test="sort_field == 'RSVR_WLVL'           		or sort_field == 'rsvr_wlvl'           	   	   "> "rsvr_wlvl"          	   	   </when>
+							<when test="sort_field == 'WINS_LOST_DATE'           	or sort_field == 'wins_lost_date'              "> "wins_lost_date"             </when>
+							<when test="sort_field == 'WINS_LOST_CNT'           	or sort_field == 'wins_lost_cnt'           	   "> "wins_lost_cnt"          	   </when>
+							<when test="sort_field == 'EQUIP_IMPORT_BUSINESS_NAME'  or sort_field == 'equip_import_business_name'  "> "equip_import_business_name" </when>
+							<when test="sort_field == 'UPD_DATE'           			or sort_field == 'upd_date'           	       "> "upd_date"          	   	   </when>
+							<when test="sort_field == 'S_FAC_CODE'           		or sort_field == 's_fac_code'           	   "> "s_fac_code"          	   </when>
+							<when test="sort_field == 'AUTO_YN'           			or sort_field == 'auto_yn'           	   	    "> "auto_yn"          	   	   </when>
+							<when test="sort_field == 'CREATE_USER'           		or sort_field == 'create_user'           	   "> "create_user"          	   </when>
+							<when test="sort_field == 'GBN'           				or sort_field == 'gbn'           	   		   "> "gbn"          	   		   </when>
+							<when test="sort_field == 'GBN_CODE'           			or sort_field == 'gbn_code'           	   	   "> "gbn_code"          	   	   </when>
+							<when test="sort_field == 'EFF_VOL'           			or sort_field == 'eff_vol'           	   	   "> "eff_vol"          	   	   </when>
+							<when test="sort_field == 'START_RATE'           		or sort_field == 'start_rate'           	   "> "start_rate"          	   </when>
+							<when test="sort_field == 'END_RATE'           			or sort_field == 'end_rate'           	   	   "> "end_rate"          	   	   </when>
+							<when test="sort_field == 'RATE_CHG'           			or sort_field == 'rate_chg'           	   	   "> "rate_chg"          	   	   </when>
+							<when test="sort_field == 'CHECK_YN'           			or sort_field == 'check_yn'           	   	   "> "check_yn"          	   	   </when>
+							<when test="sort_field == 'EQUIP_STATUS'           		or sort_field == 'equip_status'           	   "> "equip_status"          	   </when>
+							<when test="sort_field == 'ROWNUM_'                     or sort_field == 'rownum_'                     ">  ROWNUM                      </when>
+							<otherwise>
+								'error'
+							</otherwise>
+						</choose>
+						
+						<if test="sort_order != null">
+							<choose>
+								<when test="sort_order == 'asc' or sort_order == 'ASC'"> 
+									asc
+								</when>
+								<when test="sort_order == 'desc' or sort_order == 'DESC'"> 
+									desc
+								</when>
+							</choose>
+						</if>
+					</if>                          
+	 	<![CDATA[    
+	    		) TT
+	 		) w
+		WHERE "rownum_" <= TO_NUMBER(#{rn_top}) AND "rownum_" > TO_NUMBER(#{rn_bottom})
+		 ]]> 
+		order by "rownum_"
+	</sql>
+	
+	<select id="inq_common_det_code" parameterType="CommonMap" resultType="CommonMap">
+		SELECT DET_CODE                  AS "code"
+		,      NAME_KOR                  AS "text"
+		,      NAME_KOR||'('||DESC_||')' AS "nmkr_desc_text"
+		,      DET_CODE||' - '||DESC_    AS "detcd_desc"
+		,      DESC_                     AS "desc_"
+		,      NAME_ENG                  AS "name_eng" 
+		,      TMP_COL1                  AS "tmp_col1"
+		,      TMP_COL2                  AS "tmp_col2"
+		,      TMP_COL3                  AS "tmp_col3"
+		,      TMP_COL4                  AS "tmp_col4"
+		,      TMP_COL5                  AS "tmp_col5"
+		,      TMP_COL6                  AS "tmp_col6"
+		,      TMP_COL7                  AS "tmp_col7"
+		,      TMP_COL8                  AS "tmp_col8"
+		,      TMP_COL9                  AS "tmp_col9"
+		,      TMP_COL10                 AS "tmp_col10" 
+          FROM TB_BASE_COMMON_DET_CODE
+         WHERE GRP_CODE  = #{grp_code}
+         <if test="tmp_col1 != null  and tmp_col1 != '' ">   AND TMP_COL1   = #{tmp_col1}  </if>
+         <if test="tmp_col2 != null  and tmp_col2 != '' ">   AND TMP_COL2   = #{tmp_col2}  </if>
+         <if test="tmp_col3 != null  and tmp_col3 != '' ">   AND TMP_COL3   = #{tmp_col3}  </if>
+         <if test="tmp_col4 != null  and tmp_col4 != '' ">   AND TMP_COL4   = #{tmp_col4}  </if>
+         <if test="tmp_col5 != null  and tmp_col5 != '' ">   AND TMP_COL5   = #{tmp_col5}  </if>
+         <if test="tmp_col6 != null  and tmp_col6 != '' ">   AND TMP_COL6   = #{tmp_col6}  </if>
+         <if test="tmp_col7 != null  and tmp_col7 != '' ">   AND TMP_COL7   = #{tmp_col7}  </if>
+         <if test="tmp_col8 != null  and tmp_col8 != '' ">   AND TMP_COL8   = #{tmp_col8}  </if>
+         <if test="tmp_col9 != null  and tmp_col9 != '' ">   AND TMP_COL9   = #{tmp_col9}  </if>
+         <if test="tmp_col10 != null and tmp_col10 != '' ">  AND TMP_COL10  = #{tmp_col10} </if>
+         <if test="use_yn != null and use_yn != '' ">  AND USE_YN  = #{use_yn} </if>
+         ORDER BY SORT
+	</select>
+	
+	<select id="inq_common_det_code_tmpcol1or2" parameterType="CommonMap" resultType="CommonMap">
+	   SELECT NAME_KOR                  AS "text"
+	   ,      NAME_KOR||'('||DESC_||')' AS "nmkr_desc_text"
+	   ,      DESC_                     AS "desc_"
+       ,      DET_CODE                  AS "code"
+         FROM TB_BASE_COMMON_DET_CODE
+        WHERE GRP_CODE = #{grp_code}
+        <if test="use_yn != null and use_yn != '' ">  AND USE_YN  = #{use_yn} </if> 
+          AND (TMP_COL1 = #{tmp_col1} OR TMP_COL2 = #{tmp_col2} ) 
+        ORDER BY SORT 
+	</select>  
+	
+	<select id="inq_buseo_head_code_list" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT SUBSTR(BUSEO_CODE,0,3) AS "buseo_head_code"
+		     , BUSEO_NAME 			  AS "buseo_head_name"
+		  FROM TB_R3_INFO_BUSEO
+		 WHERE BUSEO_LEVEL = 1
+		 <if test='bonsa == null or bonsa != "Y"'>AND BUSEO_TYPE != '1'</if>	<!-- 22.06.08. 사용자관리만 본사 나오게 -->
+		ORDER BY TO_NUMBER(BUSEO_CODE)
+		<!-- 22.05.20. 사업단, 본사 안나와서 수정 
+		SELECT SUBSTR(BUSEO_CD,0,3)  AS "buseo_head_code"
+		 ,      BUSEO_NAME            AS "buseo_head_name"
+		   FROM VI_RAWRISNEW_BUSEO_BASE
+		  WHERE CD_LEVEL = 2
+		  ORDER BY TO_NUMBER(JIKJE_SEQ) -->
+	</select>
+
+	<select id="inq_buseo_branch_code_list" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT BUSEO_CODE AS "buseo_branch_code"
+			 , BUSEO_NAME AS "buseo_branch_name"
+		  FROM TB_R3_INFO_BUSEO
+		 WHERE BUSEO_PCODE = #{buseo_head_code}||'1100'
+		   and buseo_code != '4171100'
+	  ORDER BY TO_NUMBER(BUSEO_CODE)
+		<!-- 22.05.20. 사업단, 본사 안나와서 수정 
+		SELECT BUSEO_CD     AS "buseo_branch_code"
+		,      BUSEO_NAME   AS "buseo_branch_name" 
+		  FROM VI_RAWRISNEW_BUSEO_BASE
+		 WHERE BUSEO_CD LIKE #{buseo_head_code}||'%'
+		   AND CD_LEVEL = 3
+		 ORDER BY TO_NUMBER(JIKJE_SEQ) -->
+	</select>
+	
+	<select id="inq_addr_head_code_list" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT SIDO_CODE AS "addr_head_code"
+			 , SIDO_NAME AS "addr_head_name"
+	      FROM VI_ADDR_CODE_INFO
+	  GROUP BY SIDO_CODE, SIDO_NAME
+	  ORDER BY SIDO_CODE
+	</select>
+	
+	<select id="inq_addr_branch_code_list" parameterType="CommonMap" resultType="CommonMap"> 
+		SELECT SIGUNGU_CODE AS "addr_branch_code"
+			 , SIGUNGU_NAME AS "addr_branch_name"
+		  FROM VI_ADDR_CODE_INFO
+		 WHERE SIDO_CODE = #{addr_head_code}
+	  ORDER BY SIGUNGU_CODE 
+	</select>	
+	
+	<select id="inq_reservoir_buseo_equip_code_list" parameterType="CommonMap" resultType="CommonMap">
+		SELECT TEIB.EQUIP_NO    AS "equip_no"
+		,      TEIB.EQUIP_NAME  AS "equip_name"
+		,      SGG.ADM_SGG_CODE AS "adm_sgg_code"
+		,      SGG.ADM_SGG_NAME AS "adm_sgg_name"
+		,      SGG.ADM_SGG_NAME||' - '||TEIB.EQUIP_NAME  AS "adm_equip_name" 
+		  FROM (
+                SELECT A.EQUIP_NO
+                ,      A.EQUIP_NAME  
+                ,      A.ADM_CODE
+                  FROM TB_EQUIP_INFO_BASE A 
+             LEFT JOIN TB_R3_INFO_BUSEO B ON A.BUSEO_CD = B.BUSEO_CODE
+                 WHERE A.EQUIP_USE_YN = 'Y' 
+                   AND A.FAC_KIND_CODE = '1'
+                   AND B.BUSEO_CODE = #{s_buseo_code}        
+          ) TEIB LEFT JOIN TB_CODE_ADM_SGG SGG ON SUBSTR(TEIB.ADM_CODE,1,5)= SGG.ADM_SGG_CODE
+          ORDER BY SGG.ADM_SGG_NAME, TEIB.EQUIP_NAME   
+	</select>
+	
+	<select id="inq_user_info_role" parameterType="CommonMap" resultType="CommonMap">
+		SELECT USER_ROLE AS "user_role"
+        ,      CASE WHEN USER_ROLE = '0' THEN '관리자'
+                    WHEN USER_ROLE = '5' THEN '유지관리'
+                    WHEN USER_ROLE = '9' THEN '사용자'
+                END AS "user_role_name"
+         FROM TB_USER_INFO_ROLE
+        WHERE USER_ROLE IN ('0','5','9')
+        ORDER BY USER_ROLE
+	</select>
+	
+	<select id="search_by_user_nm" parameterType="CommonMap" resultType="CommonMap">
+		SELECT TUI.USER_ID||' ('||VRBBF.BUSEO_BRANCH_NAME||')' AS "user_name"
+		,      TUI.USER_ID                                      AS "user_id"
+		  FROM TB_USER_INFO TUI  
+		  LEFT JOIN VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TUI.BUSEO_CODE = VRBBF.BUSEO_BRANCH_CODE
+		 WHERE TUI.USER_ID LIKE '%'||#{key_word}||'%'
+		  <if test="user_buseo_code != null and user_buseo_code != '' ">
+		  AND (VRBBF.BUSEO_BRANCH_CODE LIKE #{user_buseo_code}||'%' OR VRBBF.BUSEO_BRANCH_CODE = '0000000') /* 로그인한 User의 부서코드 (사용자부서의 사용자만 조회가능) */
+		  </if>
+		 ORDER BY TUI.USER_ID
+	</select> 
+	
+	<select id="search_for_user_nav" parameterType="CommonMap" resultType="CommonMap">
+		SELECT TUI.USER_ID              AS "user_id"  
+		,      TUI.USER_NAME            AS "user_name"
+		,      VRBBF.BUSEO_HEAD_CODE    AS "buseo_head_code"
+	    ,      VRBBF.BUSEO_HEAD_NAME    AS "buseo_head_name"
+	    ,      VRBBF.BUSEO_BRANCH_CODE  AS "buseo_branch_code"
+	    ,      VRBBF.BUSEO_BRANCH_NAME  AS "buseo_branch_name"
+		  FROM TB_USER_INFO TUI  
+	     LEFT JOIN VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TUI.BUSEO_CODE = VRBBF.BUSEO_BRANCH_CODE
+		 WHERE TUI.USER_ID = #{s_user_nm} 
+	</select> 
+	
+	<select id="totol_search_by_equip_nm" parameterType="CommonMap" resultType="CommonMap">
+	      SELECT EQUIP_NO                              AS "equip_no"  
+		  ,      EQUIP_NAME||' ('|| BUSEO_BRANCH_NAME||' : '||FN_COMM_DET_CODE_COL('FAC_KIND_CODE',FAC_KIND_CD,'NAME_KOR')||')'  AS "equip_name"
+		    FROM VI_RAWRISNEW_EQUIP_BASE
+		   WHERE EQUIP_NAME LIKE '%'||#{key_word}||'%'
+		   <if test="user_buseo_code != null and user_buseo_code != '' ">
+		     AND  BUSEO_BRANCH_CODE LIKE #{user_buseo_code}||'%' /* 로그인한 User의 부서코드 (사용자부서의 저수지만 조회가능) */
+		   </if>
+	</select> 
+	
+	<select id="inq_buseo_user_list" parameterType="CommonMap" resultType="CommonMap">
+		SELECT USER_ID    AS "user_id"
+	    ,      USER_NAME  AS "user_name"
+	      FROM TB_USER_INFO
+	     WHERE BUSEO_CODE = #{buseo_branch_code}
+	     ORDER BY USER_NAME
+	</select>
+	
+	<select id="inq_addr_user_list" parameterType="CommonMap" resultType="CommonMap">
+		SELECT USER_ID    AS "user_id"
+	    ,      USER_NAME  AS "user_name"
+	      FROM TB_USER_INFO
+	     WHERE TO_NUMBER(ADM_CODE) = TO_NUMBER(#{buseo_branch_code})
+	     ORDER BY USER_NAME
+	</select>
+	
+	<select id="search_for_equip_nav" parameterType="CommonMap" resultType="CommonMap">
+		 SELECT TEIB.EQUIP_NO            AS "equip_no" 
+         ,      TEIB.EQUIP_NAME          AS "equip_name"
+         ,      VRBBF.BUSEO_HEAD_CODE    AS "buseo_head_code"
+         ,      VRBBF.BUSEO_HEAD_NAME    AS "buseo_head_name"
+         ,      VRBBF.BUSEO_BRANCH_CODE  AS "buseo_branch_code"
+         ,      VRBBF.BUSEO_BRANCH_NAME  AS "buseo_branch_name"  
+           FROM TB_EQUIP_INFO_BASE TEIB 
+           LEFT JOIN VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TEIB.BUSEO_CD = VRBBF.BUSEO_BRANCH_CODE 
+          WHERE TEIB.EQUIP_NO = #{equip_no}
+	</select> 
+	
+	
+	<select id="reservoir_search_by_equip_nm" parameterType="CommonMap" resultType="CommonMap">
+         SELECT VRBBF.BUSEO_BRANCH_CODE                          AS "buseo_code"
+		 ,      TEIB.EQUIP_NO                                    AS "equip_no"
+		 ,      TEIB.EQUIP_NAME||' - '|| VRBBF.BUSEO_BRANCH_NAME AS "equip_buseo_name"
+		   FROM (  SELECT BUSEO_CD , EQUIP_NO , EQUIP_NAME
+		             FROM TB_EQUIP_INFO_BASE
+		            WHERE EQUIP_STANDARD_CODE LIKE '_____1____'
+		              AND FAC_KIND_CODE = '1'
+		              AND EQUIP_USE_YN = 'Y'
+		   ) TEIB  
+		   LEFT JOIN VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TEIB.BUSEO_CD = VRBBF.BUSEO_BRANCH_CODE
+		  WHERE TEIB.EQUIP_NAME LIKE '%'||#{key_word}||'%'
+		  <if test="user_buseo_code != null and user_buseo_code != '' ">
+		    AND VRBBF.BUSEO_BRANCH_CODE LIKE #{user_buseo_code}||'%' /* 로그인한 User의 부서코드 (사용자부서의 저수지만 조회가능) */
+		  </if>  
+	</select> 
+	<select id="search_for_resvoir_equip_nav" parameterType="CommonMap" resultType="CommonMap">
+		 SELECT TEIB.EQUIP_NO             AS "equip_no" 
+         ,      TEIB.EQUIP_NAME           AS "equip_name"
+         ,      VRBBF.BUSEO_HEAD_CODE    AS "buseo_head_code"
+         ,      VRBBF.BUSEO_HEAD_NAME    AS "buseo_head_name"
+         ,      VRBBF.BUSEO_BRANCH_CODE  AS "buseo_branch_code"
+         ,      VRBBF.BUSEO_BRANCH_NAME  AS "buseo_branch_name"  
+           FROM TB_EQUIP_INFO_BASE TEIB 
+           LEFT JOIN VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TEIB.BUSEO_CD = VRBBF.BUSEO_BRANCH_CODE 
+          WHERE TEIB.EQUIP_NO = #{equip_no}
+	</select> 
+	
+	<select id="waterway_search_by_equip_nm" parameterType="CommonMap" resultType="CommonMap">
+           SELECT VRBBF.BUSEO_BRANCH_NAME                           AS "buseo_code" 
+		   ,      TEIB.EQUIP_NO                                     AS "equip_no"
+		   ,      TEIB.EQUIP_NAME||' - '|| VRBBF.BUSEO_BRANCH_NAME  AS "equip_buseo_name"
+		   ,      CASE WHEN FUNC_IS_NUMBER(NVL(FLUX_FAC_DIV,FAC_KIND_CODE)) = 'TRUE' THEN NVL(FLUX_FAC_DIV,FAC_KIND_CODE)
+                       ELSE '0' 
+                   END                                              AS "fac_kind_code"
+		    FROM TB_EQUIP_INFO_BASE TEIB
+		    LEFT JOIN  VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TEIB.BUSEO_CD = VRBBF.BUSEO_BRANCH_CODE
+		   WHERE TEIB.EQUIP_SUB_ID != '00'
+		     AND TEIB.EQUIP_USE_YN = 'Y' 
+		     AND TEIB.EQUIP_NAME LIKE '%'||#{key_word}||'%'
+		     <if test="user_buseo_code != null and user_buseo_code != '' ">
+		     AND VRBBF.BUSEO_BRANCH_CODE LIKE #{user_buseo_code}||'%'  /* 로그인한 User의 부서코드  (사용자부서의 수로부만 조회가능)*/
+		     </if>
+	</select>
+	
+	<select id="search_for_waterway_equip_nav" parameterType="CommonMap" resultType="CommonMap">
+            SELECT TEIB.EQUIP_NO                 AS "equip_no"
+			,      VRBBF.BUSEO_HEAD_CODE         AS "buseo_head_code"
+			,      VRBBF.BUSEO_BRANCH_CODE       AS "buseo_branch_code"
+			,      CASE WHEN FUNC_IS_NUMBER(NVL(TEIB.FLUX_FAC_DIV,TEIB.FAC_KIND_CODE)) = 'TRUE' THEN NVL(TEIB.FLUX_FAC_DIV,TEIB.FAC_KIND_CODE)
+			            ELSE '0' 
+			        END                           AS "fac_kind_code"  
+			,       NVL(TEIB.WATER_USAGE_DIV,'Z') AS "water_usage_div"
+			FROM TB_EQUIP_INFO_BASE TEIB 
+			LEFT JOIN VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TEIB.BUSEO_CD = VRBBF.BUSEO_BRANCH_CODE 
+			WHERE TEIB.EQUIP_NO = #{equip_no} 
+	</select>
+	
+	<select id="list_for_fac_waterway" parameterType="CommonMap" resultType="CommonMap">
+			SELECT V_WW.FAC_KIND_CODE AS "fac_kind_code" 
+		    ,      CD.NAME_KOR        AS "name_kor" 
+			  FROM (
+                    SELECT DISTINCT FAC_KIND_CODE    
+                      FROM VI_RAWRISNEW_EQUIP_WATERWAY
+			  ) V_WW
+			  INNER JOIN (
+                    SELECT DET_CODE , NAME_KOR , SORT
+                      FROM TB_BASE_COMMON_DET_CODE 
+                     WHERE GRP_CODE = 'FAC_KIND_CODE'
+			  ) CD ON V_WW.FAC_KIND_CODE = CD.DET_CODE 
+			 ORDER BY CD.SORT 
+	</select>
+	<select id="list_for_waterway_equip" parameterType="CommonMap" resultType="CommonMap"> 
+			 SELECT EQUIP_NO       AS "equip_no"
+			 ,      EQUIP_NAME     AS "equip_name"
+			 ,      BRANCH_CODE    AS "branch_code"
+			 ,      FAC_KIND_CODE  AS "fac_kind_code"
+			   FROM VI_RAWRISNEW_EQUIP_WATERWAY
+		      WHERE 1 = 1 
+		      <if test="s_buseo_branch_code != null and s_buseo_branch_code != '' ">
+			    AND BRANCH_CODE   = #{s_buseo_branch_code} 
+			  </if>
+			  <if test="s_fac_kind_code != null and s_fac_kind_code != '' ">
+			    AND FAC_KIND_CODE = #{s_fac_kind_code} 
+			  </if>
+			  ORDER BY EQUIP_NAME 
+	</select>
+	
+	<select id="list_for_flux_base_buseo_head_list" parameterType="CommonMap" resultType="CommonMap">
+	       SELECT DISTINCT 
+			       HEAD_CODE      AS "buseo_head_code"
+			,      HEAD_NAME      AS "buseo_head_name"
+			,      HEAD_JIKJE_SEQ AS "head_jikje_seq"
+			  FROM VI_RAWRISNEW_EQUIP_MASTER
+			 WHERE 1 = 1
+			/* AND FLUX_CALC_YN = 'Y' */ 
+			   AND EQUIP_USE_YN = 'Y'
+			   AND FLUX_FAC_DIV = #{s_fac_kind_code}
+		     ORDER BY TO_NUMBER(HEAD_JIKJE_SEQ)   
+	</select>
+	<select id="list_for_flux_base_buseo_branch_list" parameterType="CommonMap" resultType="CommonMap">
+		 SELECT DISTINCT 
+		        BRANCH_CODE      AS "buseo_branch_code"
+		 ,      BRANCH_NAME      AS "buseo_branch_name"   
+		 ,      BRANCH_JIKJE_SEQ AS "branch_jikje_seq"
+		   FROM VI_RAWRISNEW_EQUIP_MASTER
+		  WHERE 1 = 1  
+		 /* AND FLUX_CALC_YN = 'Y' */ 
+		    AND EQUIP_USE_YN = 'Y'
+		    AND HEAD_CODE    = #{s_buseo_head_code}
+		  ORDER BY TO_NUMBER(BRANCH_JIKJE_SEQ)  
+	</select>
+	
+	<select id="list_for_flux_base_buseo_equip_list" parameterType="CommonMap" resultType="CommonMap">
+		SELECT	VREM.EQUIP_NO    AS "equip_no" 
+		,      	VREM.EQUIP_NAME  AS "equip_name"
+		FROM	VI_RAWRISNEW_EQUIP_MASTER VREM
+		WHERE	VREM.EQUIP_USE_YN = 'Y'
+			AND VREM.BRANCH_CODE  = #{s_buseo_branch_code}
+	<choose>
+		<when test="s_fac_kind_code == null or s_fac_kind_code == '99'">
+			AND	VREM.FAC_KIND_CD	in ('10', '2', '3', '5')
+		</when>
+		<otherwise>
+			AND	VREM.FAC_KIND_CD	= #{s_fac_kind_code}
+		</otherwise>
+	</choose>
+		ORDER BY VREM.EQUIP_NAME  
+	</select>
+	
+	<select id="flux_base_search_by_equip_nm" parameterType="CommonMap" resultType="CommonMap">
+	   SELECT VRBBF.BUSEO_BRANCH_CODE                          AS "buseo_code" 
+	   ,      TEIB.EQUIP_NO                                    AS "equip_no" 
+	   ,      TEIB.EQUIP_NAME||' - '|| VRBBF.BUSEO_BRANCH_NAME AS "equip_buseo_name"
+	    FROM (SELECT EQUIP_NO , EQUIP_NAME , BUSEO_CD
+	            FROM TB_EQUIP_INFO_BASE 
+	           WHERE 1 =1 
+	          /* AND FLUX_CALC_YN = 'Y' */
+	             AND EQUIP_USE_YN = 'Y'
+	             AND FLUX_FAC_DIV IN ('1','2','3','5')
+	    ) TEIB
+	    LEFT JOIN VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TEIB.BUSEO_CD = VRBBF.BUSEO_BRANCH_CODE
+	   WHERE TEIB.EQUIP_NAME LIKE '%'||#{key_word}||'%'
+	     <if test="user_buseo_code != null and user_buseo_code != '' ">
+	     AND VRBBF.BUSEO_BRANCH_CODE LIKE #{user_buseo_code}||'%'  /* 로그인한 User의 부서코드  (사용자부서의 수로부유량계측 장비만 조회가능)*/
+	     </if>
+	</select> 
+	<select id="search_for_flux_base_equip_nav" parameterType="CommonMap" resultType="CommonMap">
+		SELECT TEIB.EQUIP_NO           AS "equip_no"
+		,      VRBBF.BUSEO_HEAD_CODE   AS "buseo_head_code"
+		,      VRBBF.BUSEO_BRANCH_CODE AS "buseo_branch_code"
+		,      TEIB.FLUX_FAC_DIV       AS "flux_fac_div" 
+		FROM TB_EQUIP_INFO_BASE TEIB 
+		LEFT JOIN VI_RAWRISNEW_BUSEO_BASE_FLAT VRBBF ON TEIB.BUSEO_CD = VRBBF.BUSEO_BRANCH_CODE 
+		WHERE TEIB.EQUIP_NO = #{equip_no}
+	</select>   
+	
+	
+	<select id="reservoir_search_by_fac_nm" parameterType="CommonMap" resultType="CommonMap">   
+        SELECT FAC_CODE                               AS "fac_code" 
+        ,      FAC_NAME||' ('||BUSEO_BRANCH_NAME||')' AS "fac_name"
+          FROM VI_RAWRISNEW_EQUIP_BASE
+         WHERE FAC_KIND_CD = '1'
+           AND FAC_NAME LIKE '%'||#{key_word}||'%'
+           <if test="user_buseo_code != null and user_buseo_code != '' ">
+           AND BUSEO_BRANCH_CODE LIKE #{user_buseo_code}||'%'
+           </if>     
+	</select>    
+	<select id="search_for_reservoir_fac_nav" parameterType="CommonMap" resultType="CommonMap"> 
+		    SELECT BUSEO_HEAD_CODE    AS "buseo_head_code" 
+		    ,      BUSEO_HEAD_NAME    AS "buseo_head_name"
+		    ,      BUSEO_BRANCH_CODE  AS "buseo_branch_code"
+		    ,      BUSEO_BRANCH_NAME  AS "buseo_branch_name"
+		    ,      FAC_CODE           AS "fac_code" 
+		    ,      FAC_NAME           AS "fac_name" 
+              FROM VI_RAWRISNEW_EQUIP_BASE
+             WHERE FAC_KIND_CD = '1'
+               AND FAC_CODE = #{fac_code}
+	</select> 
+	<select id="inq_buseo_fac_code_list" parameterType="CommonMap" resultType="CommonMap">
+	       SELECT FAC_CODE           AS "fac_code" 
+		    ,     FAC_NAME           AS "fac_name" 
+             FROM VI_RAWRISNEW_EQUIP_BASE
+            WHERE FAC_KIND_CD = '1'
+              AND BUSEO_BRANCH_CODE = #{buseo_branch_code}
+              AND FAC_CODE IS NOT NULL
+              ORDER by "fac_name" 
+	</select> 
+	
+	<select id="inq_buseo_equip_no_list" parameterType="CommonMap" resultType="CommonMap">
+	        SELECT EQUIP_NO     AS "equip_no"
+		    ,      EQUIP_NAME   AS "equip_name" 
+		      FROM VI_RAWRISNEW_EQUIP_BASE
+		     WHERE BUSEO_BRANCH_CODE = #{buseo_branch_code} 
+		     ORDER BY EQUIP_NAME
+	</select>
+	
+	<select id="inq_res_stnnm_info" parameterType="CommonMap" resultType="CommonMap">
+		 SELECT TBMI.METEO                             AS "meteo" 
+		 ,      TBRM.RES_STAN_CODE                     AS "fac_code"  
+		 ,      NVL(NVL(TBMI.NAME_K ,TBMI.NAME_E),' ') AS "stn_nm"
+		   FROM TB_BASE_METEO_INFO TBMI
+		  INNER JOIN TB_BASE_RESERVOIR_METEO TBRM ON TBMI.METEO = TBRM.METEO
+		  WHERE TBRM.RES_STAN_CODE = #{s_fac_code}
+	</select>
+	
+	<select id="inq_common_smltn_seq" parameterType="CommonMap" resultType="CommonMap">
+	 SELECT SEQ_USER_SMLTN.NEXTVAL AS "smltn_seq" 
+	  FROM DUAL 
+	</select>
+	
+	<select id="inq_res_meteo_info" parameterType="CommonMap" resultType="CommonMap">
+	   SELECT A.RES_STAN_CODE   AS "fac_code" 
+	   ,      NVL(B.NAME_K,' ') AS "name_k" 
+	   ,      NVL(B.NAME_E,' ') AS "name_e"
+	     FROM TB_BASE_RESERVOIR_METEO A
+	     LEFT JOIN TB_BASE_METEO_INFO B ON A.METEO = B.METEO
+	    WHERE RES_STAN_CODE = #{s_fac_code} 
+	</select>
+	
+	<select id="inq_res_demand_info" parameterType="CommonMap" resultType="CommonMap">
+		SELECT INFILT_MM     AS "infilt_mm"
+		,      CHLOSSPCT     AS "chlosspct"
+		,      CHLOSSPCT_ETC AS "chlosspct_etc"
+		,      DEPTH_MAX_MM  AS "depth_max_mm" 
+		,      DEPTH_MIN_MM  AS "depth_min_mm"
+		,      SUPPLY_RATE   AS "supply_rate"   
+	      FROM TB_BASE_RESERVOIR_DEMAND_VOL 
+		 WHERE RES_STAN_CODE = #{s_fac_code} 
+	</select>
+	
+	<select id="inq_res_irrigated_area_info" parameterType="CommonMap" resultType="CommonMap">
+	    SELECT NVL(AREA_BENEFICIAL,0) AS "irrigated_area"
+		  FROM KTD_COMM_MAIN 
+		 WHERE FAC_CODE = #{s_fac_code}  
+	</select>
+	
+	<select id="inq_res_growth_plan_date" parameterType="CommonMap" resultType="CommonMap">
+		SELECT NVL(MAX(READY_BEGIN_DATE)  ,'04-17') AS "ready_begin_date"
+		,      NVL(MAX(READY_FINISH_DATE) ,'05-31') AS "ready_finish_date"
+		,      NVL(MAX(GROWTH_BEGIN_DATE) ,'06-11') AS "growth_begin_date"
+		,      NVL(MAX(GROWTH_FINISH_DATE),'09-11') AS "growth_finish_date"
+		,      NVL(MAX(MOVE_BEGIN_DATE)   ,'05-21') AS "move_begin_date"
+		,      NVL(MAX(MOVE_FINISH_DATE)  ,'06-10') AS "move_finish_date"
+		  FROM TB_BASE_RESERVOIR_PLAN_DATE
+	     WHERE GROWTH_METHOD = '0' 
+		   AND RES_STAN_CODE = #{s_fac_code} 
+		   AND PLAN_YEAR = #{s_inq_year}  
+	</select>
+	
+	<select id="inq_res_region_cropcoef" parameterType="CommonMap" resultType="CommonMap">
+		    SELECT COEF_DIV AS "coef_div"
+	        ,      MONTH_1  AS "month_1"
+	        ,      MONTH_2  AS "month_2"
+	        ,      MONTH_3  AS "month_3"
+	        ,      MONTH_4  AS "month_4"
+	        ,      MONTH_5  AS "month_5"
+	        ,      MONTH_6  AS "month_6"
+	        ,      MONTH_7  AS "month_7"
+	        ,      MONTH_8  AS "month_8"
+	        ,      MONTH_9  AS "month_9"
+	        ,      MONTH_10 AS "month_10"
+	        ,      MONTH_11 AS "month_11"
+	        ,      MONTH_12 AS "month_12"
+		      FROM VI_BASE_REGION_CROPCOEF
+		     WHERE GROWTH_METHOD = 0
+		       AND REGION_DIV = (
+		          SELECT TBMI.REGION_DIV
+                    FROM TB_BASE_RESERVOIR_METEO TBRM
+                   INNER JOIN TB_BASE_METEO_INFO TBMI ON TBRM.METEO = TBMI.METEO
+                   WHERE TBRM.RES_STAN_CODE = #{s_fac_code}
+			  ) 
+		    ORDER BY COEF_DIV
+	</select>
+	<!-- 강수시나리오 선택 for 저수율  분석-->
+	<select id="inq_scenario_this_avg_weather" parameterType="CommonMap" resultType="CommonMap">
+		SELECT  STNID                            AS "stnid" 
+		,       OBS_YEAR                         AS "obs_year" 
+		,       LPAD(OBS_MONTH,2,'0')            AS "obs_month" 
+		,       LPAD(OBS_DAY,2,'0')              AS "obs_day"   
+        ,       RAIN_FALL * (#{scenario} / 100)  AS "rain_fall" 
+        ,       NVL(EVAPOR,0)                    AS "evapor" 
+        ,       NVL(TEMPERATURE,0)               AS "temperature" 
+        ,       NVL(HUMIDITY,0)                  AS "humidity" 
+        ,       NVL(SUNHOUR,0)                   AS "sunhour" 
+        ,       NVL(WINDSPEED,0)                 AS "windspeed" 
+        ,       0                                AS "etopenman" 
+        ,       INFOW_RATE                       AS "infow_rate" 
+           FROM TB_OD_STN_AVG_WEATHER A
+          INNER JOIN (
+                 SELECT  B.METEO
+                 ,       A.RES_STAN_CODE
+                 ,       SUBSTR(#{target_date},0,4) AS OBS_YEAR
+                 ,       A.INFOW_MONTH
+                 ,       A.INFOW_RATE
+                    FROM TB_BASE_RES_INFOW_RATE A 
+                   INNER JOIN TB_BASE_RESERVOIR_METEO B ON A.RES_STAN_CODE = B.RES_STAN_CODE 
+                   WHERE A.RES_STAN_CODE = #{s_fac_code}
+                     AND A.INFOW_VER = (SELECT MAX(INFOW_VER) FROM TB_BASE_RES_INFOW_RATE WHERE RES_STAN_CODE = #{s_fac_code})
+          ) B ON A.STNID = B.METEO AND LPAD(A.OBS_MONTH,2,'0') = LPAD(B.INFOW_MONTH,2,'0')
+          WHERE LPAD(OBS_MONTH,2,'0')||LPAD(OBS_DAY,2,'0') != '0229' 
+            AND STNID = (SELECT METEO FROM TB_BASE_RESERVOIR_METEO WHERE RES_STAN_CODE = #{s_fac_code})
+            AND A.BASE_YEAR = ( 
+                 SELECT NVL(MAX(BASE_YEAR),'2017')          
+                   FROM TB_OD_STN_AVG_WEATHER         
+                  WHERE STNID = (SELECT METEO FROM TB_BASE_RESERVOIR_METEO WHERE RES_STAN_CODE = #{s_fac_code})
+                    AND EXISTS ( SELECT * 
+                                   FROM TB_OD_STN_AVG_WEATHER 
+                                  WHERE BASE_YEAR = TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE,'YYYY'),12),'YYYY')
+                                    AND STNID = (SELECT METEO FROM TB_BASE_RESERVOIR_METEO WHERE RES_STAN_CODE = #{s_fac_code})
+                               )
+            )
+            AND TO_DATE(OBS_YEAR || LPAD(OBS_MONTH,2,'0') || LPAD(OBS_DAY,2,'0'), 'YYYYMMDD') <![CDATA[ >= ]]> #{s_res_info_date} 
+          ORDER BY OBS_YEAR , TO_NUMBER(OBS_MONTH) , TO_NUMBER(OBS_DAY)
+	</select>
+	
+	<!-- 강수시나리오 선택 for 필요수량  분석-->
+	<select id="inq_scenario_this_avg_weather_needfow" parameterType="CommonMap" resultType="CommonMap">
+		SELECT  STNID                            AS "stnid" 
+		,       OBS_YEAR                         AS "obs_year" 
+		,       LPAD(OBS_MONTH,2,'0')            AS "obs_month" 
+		,       LPAD(OBS_DAY,2,'0')              AS "obs_day"   
+        ,       RAIN_FALL * (#{scenario} / 100)  AS "rain_fall" 
+        ,       NVL(EVAPOR,0)                    AS "evapor" 
+        ,       NVL(TEMPERATURE,0)               AS "temperature" 
+        ,       NVL(HUMIDITY,0)                  AS "humidity" 
+        ,       NVL(SUNHOUR,0)                   AS "sunhour" 
+        ,       NVL(WINDSPEED,0)                 AS "windspeed" 
+        ,       0                                AS "etopenman" 
+        ,       INFOW_RATE                       AS "infow_rate" 
+           FROM TB_OD_STN_AVG_WEATHER A
+          INNER JOIN (
+                 SELECT  B.METEO
+                 ,       A.RES_STAN_CODE
+                 ,       SUBSTR(#{target_date},0,4) AS OBS_YEAR
+                 ,       A.INFOW_MONTH
+                 ,       A.INFOW_RATE
+                    FROM TB_BASE_RES_INFOW_RATE A 
+                   INNER JOIN TB_BASE_RESERVOIR_METEO B ON A.RES_STAN_CODE = B.RES_STAN_CODE 
+                   WHERE A.RES_STAN_CODE = #{s_fac_code}
+                     AND A.INFOW_VER = (SELECT MAX(INFOW_VER) FROM TB_BASE_RES_INFOW_RATE WHERE RES_STAN_CODE = #{s_fac_code})
+          ) B ON A.STNID = B.METEO AND LPAD(A.OBS_MONTH,2,'0') = LPAD(B.INFOW_MONTH,2,'0')
+          WHERE LPAD(OBS_MONTH,2,'0')||LPAD(OBS_DAY,2,'0') != '0229' 
+            AND STNID = (SELECT METEO FROM TB_BASE_RESERVOIR_METEO WHERE RES_STAN_CODE = #{s_fac_code})
+            AND A.BASE_YEAR = ( 
+                 SELECT NVL(MAX(BASE_YEAR),'2017')          
+                   FROM TB_OD_STN_AVG_WEATHER         
+                  WHERE STNID = (SELECT METEO FROM TB_BASE_RESERVOIR_METEO WHERE RES_STAN_CODE = #{s_fac_code})
+                    AND EXISTS ( SELECT * 
+                                   FROM TB_OD_STN_AVG_WEATHER 
+                                  WHERE BASE_YEAR = TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE,'YYYY'),12),'YYYY')
+                                    AND STNID = (SELECT METEO FROM TB_BASE_RESERVOIR_METEO WHERE RES_STAN_CODE = #{s_fac_code})
+                               )
+            )
+          ORDER BY OBS_YEAR , TO_NUMBER(OBS_MONTH) , TO_NUMBER(OBS_DAY)
+	</select>
+	
+	<select id="inq_meteo_weather" parameterType="CommonMap" resultType="CommonMap">
+		 SELECT YEAR                          AS "obs_year"
+	     ,      MONTH                         AS "obs_month"  
+	     ,      DAY                           AS "obs_day"
+	     ,      ROUND(NVL(PRECIPITATION,0),2) AS "rain_fall"
+	     ,      0                             AS "evapor"
+	     ,      ROUND(NVL(TEMP_AVG,0),2)      AS "temperature"
+	     ,      ROUND(NVL(HUMID,0),2)         AS "humidity"
+	     ,      ROUND(NVL(SUNSHINE,0),2)      AS "sunhour"
+	     ,      ROUND(NVL(WIND,0),2)          AS "windspeed" 
+	       FROM DATA_WEATHER_DETAIL A
+	      INNER JOIN TB_BASE_RESERVOIR_METEO B ON A.STATION_ID = B.METEO
+	      WHERE B.RES_STAN_CODE = #{s_fac_code}  
+	        AND TO_DATE(YEAR||LPAD(MONTH,2,'0')||LPAD(DAY,2,'0'),'YYYYMMDD') BETWEEN TO_DATE(#{meteo_start_date},'YYYY-MM-DD') AND TO_DATE(#{meteo_end_date},'YYYY-MM-DD')
+	      ORDER BY TO_NUMBER(YEAR) , TO_NUMBER(MONTH) , TO_NUMBER(DAY)  
+	</select>
+	
+	<select id="inq_fac_station_info" parameterType="CommonMap" resultType="CommonMap">
+	     SELECT TBRM.RES_STAN_CODE AS "fac_code"
+         ,      TBMI.METEO         AS "meteo"
+         ,      TBMI.LON           AS "lon"
+         ,      TBMI.LAT           AS "lat"
+         ,      TBMI.ELEVATION     AS "elevation"
+         ,      TBMI.GAUGE_HEIGHT  AS "gauge_height"
+         ,      TBMI.REGION_DIV    AS "region_div"
+           FROM TB_BASE_RESERVOIR_METEO TBRM
+          INNER JOIN TB_BASE_METEO_INFO TBMI ON TBRM.METEO = TBMI.METEO  
+          WHERE TBRM.RES_STAN_CODE = #{s_fac_code}
+	</select> 
+	
+	<select id="inq_fac_vow_rate_info" parameterType="CommonMap" resultType="CommonMap">
+		SELECT A.FAC_CODE                           AS "fac_code"   /* 저수지코드 */
+	    ,      A.CHECK_DATE                         AS "check_date" /* 조회일자 */ 
+	    ,      A.YOOHYOY                            AS "yoohyoy"    /* 유효저수량 */
+	    ,      ROUND(NVL(A.HVOW,B.AVG_ITEM_WLVL),2) AS "hvow"       /* 현재저수위 */
+	    ,      A.VOW                                AS "vow"        /* 현재저수량 */
+	    ,      ROUND((A.VOW / A.YOOHYOY) * 100,2)   AS "vow_rate"   /* 현재 저수율 */
+	    FROM (
+		    SELECT FAC_CODE
+		    ,      CHECK_DATE
+		    ,      YOOHYOY
+		    ,      HVOW
+		    ,      RVOW
+		    ,      VOW 
+		      FROM KTD_WATER_RATE 
+		     WHERE FAC_CODE  = #{s_fac_code}
+		       AND CHECK_DATE = TO_CHAR(TO_DATE(#{inq_date},'YYYY-MM-DD'), 'YYYYMMDD')
+	    ) A LEFT JOIN (
+	         SELECT EQUIP_NO 
+	         ,      TO_CHAR(OBS_DATE,'YYYYMMDD') CHR_OBS_DATE 
+	         ,      EQUIP_STANDARD_CODE  
+	         ,      AVG(ITEM_WLVL) AVG_ITEM_WLVL
+	           FROM TB_OD_DATA_EQUIP_MEASURE_RAW
+	          WHERE EQUIP_SUB_ID = '00' 
+	            AND EQUIP_STANDARD_CODE  = #{s_fac_code} 
+	            AND OBS_DATE_CHAR LIKE TO_CHAR(TRUNC(TO_DATE(#{inq_date},'YYYY-MM-DD'),'YYYY'),'YYYYMMDD')||'%'
+	          GROUP BY EQUIP_NO , TO_CHAR(OBS_DATE,'YYYYMMDD') , EQUIP_STANDARD_CODE 
+	    ) B ON A.FAC_CODE = B.EQUIP_STANDARD_CODE AND A.CHECK_DATE = B.CHR_OBS_DATE
+	</select>
+	<select id="inq_res_area_info" parameterType="CommonMap" resultType="CommonMap">
+		SELECT ROUND(A.AREA_WATERSHED                                ,2) AS "basin_area_ha" /* 유역면적 */
+		,      ROUND(NVL(NVL(B.RATIO_PADDY  , C.RATIO_PADDY  ) ,25 ) ,2) AS "ratio_paddy"   /* 논면적   */
+		,      ROUND(NVL(NVL(B.RATIO_UPLND  , C.RATIO_UPLND  ) ,15 ) ,2) AS "ratio_uplnd"   /* 밭면적   */
+		,      ROUND(NVL(NVL(B.RATIO_FOREST , C.RATIO_FOREST ) ,60 ) ,2) AS "ratio_forest"  /* 산림면적 */
+		,      ROUND(    NVL(B.RATIO_ETC    , 0                    ) ,2) AS "ratio_etc"     /* 기타면적 */
+		,      RSC_TYPE                                                  AS "rsc_type"      
+		 FROM TB_KTD_WATER_SISUL A
+		 LEFT JOIN TB_BASE_RESERVOIR_BASINRATIO B ON A.FAC_CODE = B.RES_STAN_CODE
+		 LEFT JOIN (
+		   SELECT A.RES_STAN_CODE , A.METEO , B.RATIO_PADDY , B.RATIO_UPLND , B.RATIO_FOREST
+		     FROM TB_BASE_RESERVOIR_METEO A 
+		     LEFT JOIN TB_BASE_RESERVOIR_BASINRATIO B ON A.RES_STAN_CODE = B.RES_STAN_CODE      
+		 ) C ON A.FAC_CODE = C.RES_STAN_CODE
+		WHERE A.FAC_CODE  = #{s_fac_code}
+	</select> 
+	
+	<select id="inq_res_infow_rate" parameterType="CommonMap" resultType="CommonMap">
+		SELECT MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 1  THEN INFOW_RATE END) AS "infow_rate01"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 2  THEN INFOW_RATE END) AS "infow_rate02"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 3  THEN INFOW_RATE END) AS "infow_rate03"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 4  THEN INFOW_RATE END) AS "infow_rate04"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 5  THEN INFOW_RATE END) AS "infow_rate05"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 6  THEN INFOW_RATE END) AS "infow_rate06"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 7  THEN INFOW_RATE END) AS "infow_rate07"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 8  THEN INFOW_RATE END) AS "infow_rate08"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 9  THEN INFOW_RATE END) AS "infow_rate09"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 10 THEN INFOW_RATE END) AS "infow_rate10"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 11 THEN INFOW_RATE END) AS "infow_rate11"
+		,      MAX(CASE WHEN TO_NUMBER(INFOW_MONTH) = 12 THEN INFOW_RATE END) AS "infow_rate12"
+		,	   MAX( INFOW_VER ) 											  AS "infow_ver"
+		  FROM TB_BASE_RES_INFOW_RATE
+		 WHERE RES_STAN_CODE = #{s_fac_code} 
+		   AND INFOW_VER = (SELECT MAX(INFOW_VER) FROM TB_BASE_RES_INFOW_RATE WHERE RES_STAN_CODE = #{s_fac_code})
+	</select>
+	 
+	<select id="inq_other_application_url" parameterType="CommonMap" resultType="CommonMap">
+	   SELECT #{server_div}                                          AS "server_div"
+       ,      CASE WHEN UPPER(#{server_div}) = 'DEV'  THEN TMP_COL1
+                   WHEN UPPER(#{server_div}) = 'OPER' THEN TMP_COL2
+              END                                                    AS "find_url" 
+         FROM TB_BASE_COMMON_DET_CODE
+        WHERE GRP_CODE = 'APPLICATIONS_URL'
+          AND DET_CODE = UPPER(#{appl_div})
+	</select>
+	
+</mapper>

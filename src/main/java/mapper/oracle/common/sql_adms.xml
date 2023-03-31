@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="rawris.krc.adms">
+	
+	<select id="get_adms_chart" parameterType="CommonMap" resultType="CommonMap">
+		WITH BASE_DATA AS (
+					SELECT  SIDO_NAME
+						            , CASE SIDO_NAME
+						                   WHEN '서울' THEN 1
+						                   WHEN '세종' THEN 2
+						                   WHEN '인천' THEN 3
+						                   WHEN '부산' THEN 3
+						                   WHEN '광주' THEN 3
+						                   WHEN '대구' THEN 3
+						                   WHEN '대전' THEN 3
+						                   WHEN '울산' THEN 4
+						                   ELSE 5
+						              END                                              												   AS ORDERING
+						            , CODE
+						            , SIGUN_NAME                                        									   AS LABEL
+						            , SIGUN_NAME || '(' || FAC_NAME || ')'              							   AS SIGUN_NAME_CNT
+						            , CAST ('2022' AS INTEGER)                          							   AS YEAR
+						            , CAST ('12'   AS INTEGER)                          								   AS MONTH
+						            , CAST ('5'    AS INTEGER)                          								   AS DAY
+						            , COALESCE (#{search_term}, '1')                   		    			   AS SEARCH_TERM
+						     <choose>
+					            <when test='search_term = "S"'>
+					             	, TO_CHAR( ROUND (N_RVOW,   		0), '99999999999999')   AS TODAY_RVOW
+						            , TO_CHAR(  ROUND (N_AVOW,   		0), '99999999999999')   AS NOR_RVOW
+						            , TO_CHAR( ROUND (N_RATIO,  		    0), '99999999999999')   AS NOR_DAEBI_RVOW
+					            </when>
+					             <when test='search_term = "1"'>
+					             	, TO_CHAR( ROUND (F1_RVOW, 	 	0), '99999999999999')   AS TODAY_RVOW
+						            , TO_CHAR( ROUND (F1_AVOW,  		0), '99999999999999')   AS NOR_RVOW
+						            , TO_CHAR( ROUND (F1_RATIO, 		0), '99999999999999')   AS NOR_DAEBI_RVOW
+					            </when>
+					            <when test='search_term = "2"'>
+					             	, TO_CHAR( ROUND (F2_RVOW, 		0), '99999999999999')   AS TODAY_RVOW
+						            , TO_CHAR( ROUND (F2_AVOW,  		0), '99999999999999')   AS NOR_RVOW
+						            , TO_CHAR( ROUND (F2_RATIO, 		0), '99999999999999')   AS NOR_DAEBI_RVOW
+					            </when>
+					             <otherwise>
+								    , TO_CHAR( ROUND (F3_RVOW,  		0), '99999999999999')   AS TODAY_RVOW
+						            , TO_CHAR( ROUND (F3_AVOW,  		0), '99999999999999')   AS NOR_RVOW
+						            , TO_CHAR( ROUND (F3_RATIO, 		0), '99999999999999')   AS NOR_DAEBI_RVOW
+						        </otherwise>
+					        </choose>
+		   				FROM ADMS.FS_ANAL_FORECAST_AVG2(
+		   																							'A','',#{type},'S','A','A','','',100,
+																									 #{target_date} ,
+																									 TO_CHAR( TO_DATE( #{target_date} ,'yyyymmdd') + INTERVAL '1 month', 'yyyymmdd'),
+																									 TO_CHAR( TO_DATE( #{target_date} ,'yyyymmdd') + INTERVAL '2 month', 'yyyymmdd'),
+																									 TO_CHAR( TO_DATE( #{target_date} ,'yyyymmdd') + INTERVAL '3 month', 'yyyymmdd')
+																								 )
+			UNION ALL
+					 SELECT  'nodata'                                      AS SIDO_NAME  
+						            , 6                                                AS ORDERING
+						            , '00000'                                      AS CODE
+						            , 'nodata'                                     AS LABEL
+						            , 'nodata'                                     AS SIGUN_NAME_CNT
+						            , CAST ('2022' AS INTEGER)    AS YEAR
+						            , CAST ('12' AS INTEGER)        AS MONTH
+						            , CAST ('5' AS INTEGER)          AS DAY
+						            , COALESCE (#{search_term}, '1')        AS SEARCH_TERM
+						            , '-'                                               AS TODAY_RVOW
+						            , '-'                                               AS NOR_RVOW
+						            , '-'                                               AS NOR_DAEBI_RVOW
+		)
+		SELECT *
+		FROM BASE_DATA
+		ORDER BY ORDERING, SIDO_NAME, LABEL
+	</select>
+	
+	<select id="get_adms_table" parameterType="CommonMap" resultType="CommonMap">
+		WITH BASE_DATA AS (
+							SELECT  SIDO_NAME
+								            , CASE SIDO_NAME
+								                   WHEN '서울' THEN 1
+								                   WHEN '세종' THEN 2
+								                   WHEN '인천' THEN 3
+								                   WHEN '부산' THEN 3
+								                   WHEN '광주' THEN 3
+								                   WHEN '대구' THEN 3
+								                   WHEN '대전' THEN 3
+								                   WHEN '울산' THEN 4
+								                   ELSE 5
+								              END                                              												   	AS ORDERING
+								            , CODE
+								            , SIGUN_NAME                                        									  	 AS LABEL
+								            , SIGUN_NAME || '(' || FAC_NAME || ')'              							   	AS SIGUN_NAME_CNT
+								            , FAC_NAME           							   											AS CNT
+								            , CAST ('2022' AS INTEGER)                          							   	AS YEAR
+								            , CAST ('12'   AS INTEGER)                          								   	AS MONTH
+								            , CAST ('5'    AS INTEGER)                          								   	AS DAY
+								           	, COALESCE (#{search_term}, '1')                   		    				AS SEARCH_TERM
+						           	<choose>
+							            <when test='search_term = "S"'>
+							             	, ROUND (N_RVOW,   		0)                                           				AS TODAY_RVOW
+								            , ROUND (N_AVOW,   		0)                                                        	AS NOR_RVOW
+								            , ROUND (N_RATIO,  		0)                                                        	AS NOR_DAEBI_RVOW
+							            </when>
+							             <when test='search_term = "1"'>
+							             	, ROUND (F1_RVOW, 	 	0)                                                         AS TODAY_RVOW
+								            , ROUND (F1_AVOW,  		0)                                                         AS NOR_RVOW
+								            , ROUND (F1_RATIO, 		0)                                                      	AS NOR_DAEBI_RVOW
+							            </when>
+							            <when test='search_term = "2"'>
+							             	, ROUND (F2_RVOW, 		0)                                                     	AS TODAY_RVOW
+								            , ROUND (F2_AVOW,  		0)                                                       	AS NOR_RVOW
+								            , ROUND (F2_RATIO, 		0)                                                        	AS NOR_DAEBI_RVOW
+							            </when>
+							             <otherwise>
+										    , ROUND (F3_RVOW,  		0)                                                        	AS TODAY_RVOW
+								            , ROUND (F3_AVOW,  		0)                                                         AS NOR_RVOW
+								            , ROUND (F3_RATIO, 		0)                                                         AS NOR_DAEBI_RVOW
+								        </otherwise>
+							        </choose>
+				   				FROM ADMS.FS_ANAL_FORECAST_AVG2(
+				   																							'A','',#{type},'S','A','A','','',100,
+																											 #{target_date} ,
+																											 TO_CHAR( TO_DATE( #{target_date} ,'yyyymmdd') + INTERVAL '1 month', 'yyyymmdd'),
+																											 TO_CHAR( TO_DATE( #{target_date} ,'yyyymmdd') + INTERVAL '2 month', 'yyyymmdd'),
+																											 TO_CHAR( TO_DATE( #{target_date} ,'yyyymmdd') + INTERVAL '3 month', 'yyyymmdd')
+																										 )
+		)
+		SELECT *
+		FROM BASE_DATA
+		ORDER BY ORDERING, SIDO_NAME, LABEL
+	</select>
+	
+</mapper>
