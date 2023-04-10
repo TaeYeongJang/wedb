@@ -443,7 +443,7 @@ select {
 /* map common */
 .map_popup {
   position: relative;
-  max-width: 80px;
+  /* max-width: 80px; */
   width: 100%;
   border-radius: 5px;
   background: rgba(255, 255, 255, 0.8);
@@ -821,17 +821,17 @@ select {
 .popup_common {
   min-width: 800px;
   min-height: 400px;
-  margin: 0 auto;
+ /*  margin: 0 auto;
   background: #fff;
   border-radius: 7px;
   position: absolute;
   z-index: 6;
   overflow: hidden;
   box-shadow: 0 5px 10px #555;
-  padding: 0 0 30px 0;
+  padding: 0 0 30px 0; */
 }
 .popup_common a.btn_close {
-  position: absolute;
+  /* position: absolute; */
   top: 10px;
   right: 15px;
   z-index: 7;
@@ -851,7 +851,7 @@ select {
 .popup_common .pop_con {
   position: relative;
   display: flex;
-  padding: 30px 40px 0px 40px;
+  padding: 10px;
 }
 .popup_common .pop_con .pop_con__info {
   width: 35%;
@@ -1302,3 +1302,4 @@ select {
   color: #fff;
   font-size: 17px;
 }/*# sourceMappingURL=main.css.map */
+

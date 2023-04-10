@@ -26,3 +26,15 @@
 		</c:otherwise>
 	</c:choose>
 	
+	
+	<script type="text/javascript">
+		var searchConditionObj 	= {
+				s_kind_time : 'minute'
+			,	uBcd		: '${details.level_buseo_code}'
+			,	uBlvl		: Number('${details.buseo_level}')
+			,	uBorg		: '${details.orgin_buseo_code}'
+	   		,	db_type		: 'rims'
+	    };
+	</script>
+		
+	

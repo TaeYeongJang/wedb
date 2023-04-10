@@ -15,13 +15,15 @@
                A.AWSID,
                NVL (C.TODAY_RN, 0) TODAY_RN,
                NVL (D.SUM_RN, 0)   SUM_RN,
-               DECODE(ARAN.AWSID, NULL, NVL(R.SUM_RN, 0), NULL) AVG_RN, -- 평년 강수량
-               DECODE(ARAN.AWSID, NULL, FUNC_MAX_NUMBER(ROUND(NVL (D.SUM_RN, 0) / NVL(GREATEST(R.SUM_RN, 1), 1)*100), 1000), NULL) AS AVG_RATIO, -- 평년 대비 강수량
+               NVL(R.SUM_RN, 0) AVG_RN, -- 평년 강수량
+               CASE WHEN R.SUM_RN  IS NULL THEN 0
+                    ELSE FUNC_MAX_NUMBER(ROUND(NVL (D.SUM_RN, 0) / NVL(GREATEST(R.SUM_RN, 1), 1)*100), 1000)
+                END AS AVG_RATIO, -- 평년 대비 강수량
                A.OBSNM,
                A.LON               X,
                A.LAT               Y
           FROM TB_CD_KMA_AWS  A,
-               (SELECT * FROM TB_CD_KMA_AWS_USE WHERE USE_YN = 'Y' <if test="TYPE!=null" > and TYPE = #{type} </if>) B,
+               (SELECT * FROM TB_CD_KMA_AWS_USE WHERE USE_YN = 'Y' <if test="type!=null" > and TYPE = #{type} </if>) B,
                (SELECT
                     STN_ID AWSID, SUM(RN / 10) TODAY_RN
                 FROM TB_NJ_AWS_RAIN_1HR
@@ -42,7 +44,6 @@
                                     FROM DUAL CONNECT BY (TO_DATE (#{s_start_date}, 'YYYYMMDD') + LEVEL - 1) <![CDATA[ <= ]]> TO_DATE (#{s_end_date}, 'YYYYMMDD')
                                 )
                 )
-                AND AWSID NOT IN (SELECT * FROM TB_NJ_AWS_RAIN_AVG_NOT) -- 평년데이터가 부족한 경우
                 GROUP BY AWSID
                 ) R,
                 TB_NJ_AWS_RAIN_AVG_NOT ARAN
@@ -63,7 +64,152 @@
                  A.LON         X,
                  A.LAT         Y
           FROM TB_CD_KMA_AWS  A
-        ORDER BY A.OBSNM ASC
+     where rownum <![CDATA[ <= ]]>  10
+</select>
+
+<select id="get_water_Rate_fac" parameterType="CommonMap" resultType="CommonMap">
+   WITH BASE AS (
+	    SELECT A.FAC_CODE AS CODE
+	         , B.EQUIP_NO
+	         , A.FAC_NAME AS LABEL
+	         , C.ADDR1||' '||C.ADDR2||' '||C.ADDR3||' '||C.ADDR4 AS ADDR
+	         , F_KTD_BUSEO_JISANAME(A.BUSEO_CD) AS MNGT_ORG
+	         , A.RSC_TYPE
+	         , NVL(A.R_TOTAL_STORAGE, 0) AS TOTAL_STORAGE
+	         , NVL(A.R_EFFEC_STORAGE, 0) AS EFFEC_STORAGE
+	         , NVL(A.AREA_WATERSHED, 0) AS AREA_WATERSHED
+	         , NVL(D.AREA_BENEFICIAL, NVL(A.AREA_BENEFICIAL, 0)) AS AREA_BENEFICIAL     
+	         , D.DAEPYEO_JIBUN_X AS LON
+	         , D.DAEPYEO_JIBUN_Y AS LAT
+	         , A.AUTO_RVOW
+	         , A.AUTO_DATE AS OBS_DATE
+	    FROM RIMSHOME.KTD_WATER_SISUL A
+	    LEFT JOIN TB_EQUIP_INFO_BASE@RAWRIS_NEW B ON A.FAC_CODE = B.EQUIP_STANDARD_CODE AND B.EQUIP_USE_YN = 'Y' AND B.EQUIP_MANAGEMENT_GBN_CODE = '01' AND B.FAC_KIND_CODE = '1' 
+	    LEFT JOIN KTD_COMM_ADDR C ON A.JUSO_CD = C.ADDR_CODE
+	    LEFT JOIN KTD_COMM_MAIN D ON A.FAC_CODE = D.FAC_CODE
+	    WHERE A.FLAG IN ('1','2')
+	    <if test='rscType == "main"'>
+			 AND  RSC_TYPE LIKE '주수원' ||'%'
+        </if>
+        <if test='rscType == "sub"'>
+			AND  RSC_TYPE NOT LIKE '주수원' ||'%'
+        </if>
+        <if test='facName != null'>
+			AND  FAC_NAME LIKE '%' || #{facName} ||'%'
+        </if>
+ 
+	)
+	, CCTV AS (
+	    SELECT A.FAC_STANDARD_CODE, 'Y' AS CCTV_YN
+	    FROM DB_TMTC.TB_CCTV_CAMERA_INFO@DBLINK_DB_TMTC A
+	    INNER JOIN DB_TMTC.TB_CCTV_CAMERA_STATE@DBLINK_DB_TMTC B ON A.CCTV_CAMERA_NO = B.CAMERA_NO AND B.CAMERA_ACTIVE = 1
+	    GROUP BY A.FAC_STANDARD_CODE
+	)
+	, RATE AS (
+	    SELECT FAC_CODE, AUTO_ERR, VOW, YOOHYOY, RVOW
+	    FROM (                                     
+	        SELECT FAC_CODE
+	             , CASE WHEN 'REAL' = #{realType} THEN AUTO_ERR ELSE '-' END AS AUTO_ERR
+	             , ROW_NUMBER() OVER(PARTITION BY FAC_CODE ORDER BY CHECK_DATE DESC) AS RNUM
+	             , VOW
+	             , YOOHYOY
+	             , RVOW
+	        FROM KTD_WATER_RATE
+	        WHERE CHECK_DATE BETWEEN TO_CHAR(SYSDATE-10, 'YYYYMMDD') AND TO_CHAR(SYSDATE, 'YYYYMMDD') 
+	        AND SABUN IS NOT NULL
+	    )
+	    WHERE RNUM = 1
+	)
+	, AVG10 AS (
+	    SELECT FAC_CODE
+	         , ROUND(AVG(VOW), 2) AS AVG_VOW
+	         , ROUND(AVG(YOOHYOY), 2) AS AVG_YOOHYOY
+	    FROM KTD_WATER_RATE
+	    WHERE CHECK_DATE BETWEEN TO_CHAR(ADD_MONTHS(SYSDATE, -360), 'YYYYMMDD') AND TO_CHAR(ADD_MONTHS(SYSDATE, -12), 'YYYYMMDD')
+	    AND CHECK_MMDD = TO_CHAR(SYSDATE, 'MMDD')
+	    GROUP BY FAC_CODE
+	)
+	, PREV AS (
+	    SELECT FAC_CODE, VOW, YOOHYOY, RVOW
+	    FROM (                                     
+	        SELECT FAC_CODE
+	             , ROW_NUMBER() OVER(PARTITION BY FAC_CODE ORDER BY CHECK_DATE DESC) AS RNUM
+	             , VOW
+	             , YOOHYOY
+	             , RVOW
+	        FROM KTD_WATER_RATE
+	        WHERE CHECK_DATE BETWEEN TO_CHAR(SYSDATE-15, 'YYYYMMDD') AND TO_CHAR(SYSDATE-1, 'YYYYMMDD') 
+	        AND SABUN IS NOT NULL
+	    )
+	    WHERE RNUM = 1
+	)
+	, RST AS (
+	    SELECT A.*
+	         , CASE WHEN C.AUTO_ERR = '9' THEN (A.AUTO_RVOW * C.YOOHYOY / 100) ELSE C.VOW END AS VOW
+	         , C.YOOHYOY
+	         , D.AVG_VOW
+	         , D.AVG_YOOHYOY
+	         , ROUND(E.RVOW, 1) AS PREV_RVOW
+	         , NVL(B.CCTV_YN, 'N') AS CCTV_YN
+	         , C.AUTO_ERR
+	    FROM BASE A
+	    LEFT JOIN CCTV B ON A.CODE = B.FAC_STANDARD_CODE   
+	    LEFT JOIN RATE C ON A.CODE = C.FAC_CODE
+	    LEFT JOIN AVG10 D ON A.CODE = D.FAC_CODE
+	    LEFT JOIN PREV E ON A.CODE = E.FAC_CODE
+	)
+	, RST2 AS (
+	    SELECT A.*
+	         , CASE WHEN A.YOOHYOY IS NULL THEN 0 ELSE ROUND(NVL(A.VOW / A.YOOHYOY * 100, 0), 1) END AS RVOW
+	         , ROUND(ROUND(NVL(A.AVG_VOW, A.VOW) / GREATEST(A.YOOHYOY, NVL(A.AVG_YOOHYOY, A.YOOHYOY)) * 100, 2), 1) AS AVG_RVOW
+	    FROM RST A
+	)
+	, RST3 AS (
+	    SELECT A.*
+	         , ROUND(A.RVOW / DECODE(A.AVG_RVOW, 0, 1, A.AVG_RVOW) * 100, 1) AS AVG_RVOW_D
+	    FROM RST2 A
+	)
+	SELECT A.CODE
+	     , A.EQUIP_NO
+	     , A.LABEL
+	     , A.ADDR
+	     , A.MNGT_ORG
+	     , A.RSC_TYPE
+	     , A.TOTAL_STORAGE
+	     , A.EFFEC_STORAGE
+	     , A.AREA_WATERSHED
+	     , A.AREA_BENEFICIAL    
+	     , NVL(A.VOW, 0) AS VOW
+	     , NVL(A.YOOHYOY, 0) AS YOOHYOY
+	     , NVL(A.AVG_VOW, 0) AS AVG_VOW
+	     , NVL(A.AVG_YOOHYOY, 0) AS AVG_YOOHYOY
+	     , NVL(A.RVOW, 0) AS RVOW
+	     , NVL(A.PREV_RVOW, 0) AS PREV_RVOW
+	     , NVL(A.AVG_RVOW, 0) AS AVG_RVOW
+	     , NVL(A.AVG_RVOW_D, 0) AS AVG_RVOW_D
+	     , A.LON
+	     , A.LAT
+	     , A.CCTV_YN
+	     , COUNT(A.CODE) OVER(PARTITION BY A.CODE) AS TOT_CNT
+	     <![CDATA[
+	     , CASE WHEN AVG_RVOW_D <= 40 THEN 1 ELSE 0 END RED
+	     , CASE WHEN AVG_RVOW_D > 40 AND AVG_RVOW_D <= 50 THEN 1 ELSE 0 END ORANGE
+	     , CASE WHEN AVG_RVOW_D > 50 AND AVG_RVOW_D <= 60 THEN 1 ELSE 0 END YELLOW
+	     , CASE WHEN AVG_RVOW_D > 60 OR AVG_RVOW_D IS NULL  THEN 1 ELSE 0 END BLUE
+	     , CASE WHEN RVOW >= 90 THEN 1 ELSE 0 END CUR_RED
+	     , CASE WHEN RVOW >= 80 AND RVOW < 90 THEN 1 ELSE 0 END CUR_ORANGE
+	     , CASE WHEN RVOW >= 70 AND RVOW < 80 THEN 1 ELSE 0 END CUR_YELLOW
+	     , CASE WHEN RVOW < 70 THEN 1 ELSE 0 END CUR_BLUE 
+	     , CASE WHEN A.AVG_RVOW = 0 THEN 0 
+                ELSE ROUND( RVOW / A.AVG_RVOW * 100 , 1)
+            END                 AS PREPARE_RVOW
+	     ]]>
+	     , A.AUTO_ERR
+	     , A.OBS_DATE
+	FROM RST3 A
+	WHERE LON IS NOT NULL
+	AND LAT IS NOT NULL
+	
 </select>
 	
 </mapper>
