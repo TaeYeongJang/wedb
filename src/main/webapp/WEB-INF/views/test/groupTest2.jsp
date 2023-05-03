@@ -259,7 +259,7 @@
 				console.log("error");
 			};
 
-			rawrisAjaxPost(param);
+			ajaxPost(param);
 
 		}
 

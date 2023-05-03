@@ -121,7 +121,7 @@
 // 				var dynaGenComboFacNmCodeObj = {  comboInfo     : { targetId : "#s_user_nm" }
 // 												, optionValInfo : { optId : "user_id" , optTxt : "user_name" }
 // 												, optionInfo    : { postion : "top" , txt : "사용자" , val : "" }
-// 												, comboDataInfo : rawrisAjaxPost({ sql      :"rawris.wrms.listcode.search_by_user_nm" 
+// 												, comboDataInfo : ({ sql      :"rawris.wrms.listcode.search_by_user_nm" 
 // 							                                                     , key_word : $("#userNm").val() 
 // 							                                                     , user_buseo_code : "${details.level_buseo_code}"
 // 							                                                     /* 로그인한 사용자의 BUSEO_CODE 본인의 부서소속 사용자만 조회가능 */
@@ -136,7 +136,7 @@
 			 
 // 			if(rawrisIsEmpty($(evt.target).val())) return false;
 			 
-// 			var userNavObjList = rawrisAjaxPost({ sql      : "rawris.wrms.listcode.search_for_user_nav" 
+// 			var userNavObjList = ({ sql      : "rawris.wrms.listcode.search_for_user_nav" 
 // 			                                     , s_user_nm : $("#s_user_nm :selected").val() 
 // 			                                    });
 // 			var userNavObj = userNavObjList[0]; 
@@ -169,7 +169,7 @@
 					  comboInfo     : { targetId : "#s_buseo_head_code" }
 					, optionInfo    : { postion : "top" , txt : "선택" , val : "" }
 					, optionValInfo : { optId : "buseo_head_code" , optTxt : "buseo_head_name" } 
-					, comboDataInfo : rawrisAjaxPost({ sql             : "rawris.wrms.listcode.inq_buseo_head_code_list"
+					, comboDataInfo : ({ sql             : "rawris.wrms.listcode.inq_buseo_head_code_list"
 				                        			 , bonsa 		   : "Y"
 						              })
 		              
@@ -186,7 +186,7 @@
 					  comboInfo     : { targetId : "#s_buseo_head_code" }
 					, optionInfo    : { postion : "top" , txt : "선택" , val : "" }
 					, optionValInfo : { optId : "addr_head_code" , optTxt : "addr_head_name" } 
-					, comboDataInfo : rawrisAjaxPost({ sql             : "rawris.wrms.listcode.inq_addr_head_code_list" }) 
+					, comboDataInfo : ({ sql             : "rawris.wrms.listcode.inq_addr_head_code_list" }) 
 				};  
 				rawrisDynaGenSelectOptions(dynaGenComboBuseoHeadInfoObj); 
 		}
@@ -208,7 +208,7 @@
 						  comboInfo     : { targetId : "#s_buseo_branch_code" }
 						, optionInfo    : { postion : "top" , txt : "지사" , val : "" }
 						, optionValInfo : { optId : "buseo_branch_code" , optTxt : "buseo_branch_name" }  
-						, comboDataInfo : rawrisAjaxPost({ sql             : "rawris.wrms.listcode.inq_buseo_branch_code_list"
+						, comboDataInfo : ({ sql             : "rawris.wrms.listcode.inq_buseo_branch_code_list"
 							                             , buseo_head_code : $("#s_buseo_head_code :selected").val()
 							              })
 				}; 
@@ -227,7 +227,7 @@
 						  comboInfo     : { targetId : "#s_buseo_branch_code" }
 						, optionInfo    : { postion : "top" , txt : "시.군" , val : "" }
 						, optionValInfo : { optId : "addr_branch_code" , optTxt : "addr_branch_name" }  
-						, comboDataInfo : rawrisAjaxPost({ sql             : "rawris.wrms.listcode.inq_addr_branch_code_list"
+						, comboDataInfo : ({ sql             : "rawris.wrms.listcode.inq_addr_branch_code_list"
 							                             , addr_head_code : $("#s_buseo_head_code :selected").val()
 							              })
 				}; 
@@ -253,7 +253,7 @@
 						  comboInfo     : { targetId : "#s_user_id" }
 						, optionInfo    : { postion : "top" , txt : "사용자" , val : "" }
 						, optionValInfo : { optId : "user_id" , optTxt : "user_name" } 
-						, comboDataInfo : rawrisAjaxPost({ sql               : "rawris.wrms.listcode.inq_buseo_user_list"
+						, comboDataInfo : ({ sql               : "rawris.wrms.listcode.inq_buseo_user_list"
 							                             , buseo_branch_code : $("#s_buseo_branch_code :selected").val()
 							              }) 
 			    }; 
@@ -270,7 +270,7 @@
 						  comboInfo     : { targetId : "#s_user_id" }
 						, optionInfo    : { postion : "top" , txt : "사용자" , val : "" }
 						, optionValInfo : { optId : "user_id" , optTxt : "user_name" } 
-						, comboDataInfo : rawrisAjaxPost({ sql               : "rawris.wrms.listcode.inq_addr_user_list"
+						, comboDataInfo : ({ sql               : "rawris.wrms.listcode.inq_addr_user_list"
 							                             , buseo_branch_code : $("#s_buseo_branch_code :selected").val()
 							              }) 
 			    }; 
@@ -406,7 +406,7 @@
 			_dataGrid = init_grid();
 		};
 
-		rawrisAjaxPost(parm);
+		(parm);
 	}
 	
 	function init_grid(data) {
@@ -474,7 +474,7 @@
 		 $('#modal_user_update').modal({backdrop: 'static', keyboard: false});
 		 
 		 if(!_user_level_list) {
-			 _user_level_list = rawrisAjaxPost({sql : "rawris.wrms.userinfo.user_level_list" });
+			 _user_level_list = ({sql : "rawris.wrms.userinfo.user_level_list" });
 			 
 			 var dynaGenComboFacNmCodeObj =	{
 						comboInfo     : { targetId : "#m_user_level" }
@@ -484,7 +484,7 @@
 			rawrisDynaGenSelectOptions(dynaGenComboFacNmCodeObj);
 		 }
 		 if(!_user_role_list) {
-			 _user_role_list = rawrisAjaxPost({sql : "rawris.wrms.userinfo.user_role_list" });
+			 _user_role_list = ({sql : "rawris.wrms.userinfo.user_role_list" });
 
 			 var dynaGenComboFacNmCodeObj =	{
 						comboInfo     : { targetId : "#m_user_role" }
@@ -521,7 +521,7 @@
 						m_user_role 	: $("#m_user_role :selected").val(),
 						m_user_password : pwd
 				   };
-		var m_rst = rawrisAjaxPost(parm);
+		var m_rst = (parm);
 		
 		if(!m_rst) {
 			rawrisShowMsg("사용자 정보 수정중 장애가 발생했습니다");

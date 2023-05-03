@@ -6,7 +6,7 @@
  ****************                 RAWRIS  FUNCTIONS                ***************  
  *********************************************************************************/
 
-function rawrisAjaxPost(callAjaxObj) { 
+function ajaxPost(callAjaxObj) { 
 	  /*		
        *    var  callAjaxObj =   { sid    : "callAjax_Uniq_Id" 
        *                         , cmd    : "selectPageList"
@@ -19,7 +19,7 @@ function rawrisAjaxPost(callAjaxObj) {
 		                         , failFn    : function (err){ 
 		                                       }              
 		                         }
-	   *    var userMenuList = rawrisAjaxPost(callAjaxObj); 
+	   *    var userMenuList = ajaxPost(callAjaxObj); 
 	   *    
 	   *    callAjaxObj.cmd = selectList , selectPageList , register , insert , update , delete ) default : selectList
 	   *                    = 만약 cmd가 selectPageList 일경우 pageNo , pageSize는 필수값이다.  pageNo : 사용자가 선택한 페이지번호 ,  pageSize 한화면에 보여질 페이지 사이즈
@@ -827,7 +827,7 @@ function rawrisTableDisplay(tarDispObj){
 	 *  var displayInfoObj = {
 			  dispTarget    : "#favorite_equip_list_table > tbody"
 			, dispDiv       : dispDivVal 
-			, resource      : rawrisAjaxPost(searchConditionObj ) 
+			, resource      : ajaxPost(searchConditionObj ) 
 			, paginginfo    : {targetId : "#pagination" , btnFnName : favoriteEquipPageBtnClick }
 	        , displayColInfos : {
         	   	     list_fav_for_reservoir : [ {id:"rownum_"                    , align:"center"                                      } 
@@ -1294,7 +1294,7 @@ var dynaGenRadioEquipKindCodeObj = {
 		radioInfo		: { targetId : "#equip_management_grp_area" , classNm : "col-md-4" }
 		, radioProp		: { radioId  : "equip_management_grp_" , radioNm : "equip_management_grp_code" , style:"margin-left:10px;", radioType :''}
 		, optionValInfo : { optCode : "code" , optTxt : "text" } 
-		, radioDataInfo : rawrisAjaxPost({ sql      : "rawris.wrms.listcode.inq_common_det_code"
+		, radioDataInfo : ajaxPost({ sql      : "rawris.wrms.listcode.inq_common_det_code"
 										, grp_code : "EQUIP_MANAGEMENT_GBN"
 										, use_yn   : "Y"
 						}) 
@@ -1691,7 +1691,7 @@ function rawrisDatePicker(targetSelector){
  ********************             HOST FUNCTIONS           *********************** 
  *********************************************************************************/ 
 function rawrisGetReportHost(){   
-	var reportUrlList = rawrisAjaxPost({sql        : "rawris.wrms.listcode.inq_other_application_url"
+	var reportUrlList = ajaxPost({sql        : "rawris.wrms.listcode.inq_other_application_url"
 		                              , appl_div   : "report" 
 		                              , server_div : "oper"	// 운영서버 	
 //		                              , server_div : "DEV"	// 개발	

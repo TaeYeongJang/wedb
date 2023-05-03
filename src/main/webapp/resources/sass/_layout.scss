@@ -88,16 +88,15 @@
 /* map common */
 // 팝업
 .map_popup{position:relative;max-width:80px;width:100%;border-radius:5px;background:rgba(255,255,255,0.8);box-shadow:0 2px 10px #666;
+    &::before{@include before;@include position($l:-4px,$t:-4px);width:8px;height:8px;border:2px solid #fff;border-radius:30px}
     h3{font-size:12px;color:#555;height:25px;line-height:25px;padding:0 7px;border-radius:5px}
     p{color:#fff;font-size:13px;font-weight:700;height:30px;line-height:30px;padding:0 7px;border-radius:0 0px 5px 5px}   
     .point{border-radius:50%;width:8px;height:8px;display:block;@include position($t:-5px,$l:-14px);border:1px solid #fff}
 }
-
-.popcolor_step1{background-color:$popcolor-step1}  //투명도가 적용된 단계별 색상 (관심,주의,경계,경고)
-.popcolor_step2{background-color:$popcolor-step2}
-.popcolor_step3{background-color:$popcolor-step3}
-.popcolor_step4{background-color:$popcolor-step4}
-
+.before_step1::before {background:$color-step1 !Important}
+.before_step2::before {background:$color-step2 !Important}
+.before_step3::before {background:$color-step3 !Important}
+.before_step4::before {background:$color-step4 !Important}
 
 .map_popup2{position:relative;max-width:230px;width:100%;border-radius:5px;padding:15px 20px;background:rgba(255,255,255,0.8);box-shadow:0 2px 10px #666;
     a.btn_close{@include position($t:5px,$r:8px);color:#8F8F8F}   

@@ -161,14 +161,14 @@
 				    const { map } = windyAPI;
 				   
 				  
-    			  
+    			  /* 
 				    if(!navigator.geolocation) {
 				        console.log("Your browser doesn't support geolocation feature!")
 				    } else {
 				        setInterval(() => {
 				            navigator.geolocation.getCurrentPosition(getPosition)
 				        }, 5000);
-				    }
+				    } */
 
 				    var marker, circle;
 					function getPosition(position){
@@ -249,7 +249,7 @@
 				console.log("error");
 			};
 
-			rawrisAjaxPost(param);
+			ajaxPost(param);
 
 		}
 		
@@ -274,17 +274,6 @@
        	    zoom: 8,
 		};
 
-		
-
-		
-/* 		<div class="map_popup" style="position:absolute;top:30%;left:50%">
-	        <h3>흑산도</h3>
-	        <span class="point popcolor_step1"></span>
-	        <p class="popcolor_step1">436.2</p>
-	    </div> */
-	    
-	 
-	    
 	</script>
 </head>
 <body>
@@ -346,44 +335,7 @@
                 </ul>
             </div>
             <hr>
-            <!-- 플레이바 -->
-           <!--  <div class="progress_bar">
-                <div class="progress_line">
-                    <div class="avbl"></div>
-                    <div class="played" style="width:200px">
-                        <span class="bar" style="left: 140.441px"></span>
-                    </div>
-                </div>
-                <div class="timecode" title="현지 시각" style="left: 140.441px;">
-                    <div class="box">22-06-01 12:00</div>
-                </div>
-                <div class="play_pause"><i class="fa-solid fa-play"></i></div>           
-            </div>   -->      
-            <hr>
-            <!-- 관심 -->
-            <div class="map_popup" style="position:absolute;top:30%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step1"></span>
-                <p class="popcolor_step1">436.2</p>
-            </div>
-             <!-- 주의 -->
-             <div class="map_popup" style="position:absolute;top:35%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step2"></span>
-                <p class="popcolor_step2">436.2</p>
-            </div>
-            <!-- 경계 -->
-              <div class="map_popup" style="position:absolute;top:40%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step3"></span>
-                <p class="popcolor_step3">436.2</p>
-            </div>
-            <!-- 경고 -->
-            <div class="map_popup" style="position:absolute;top:45%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step4"></span>
-                <p class="popcolor_step4">436.2</p>
-            </div>
+   
             <hr>
             <!-- 팝업에서 지역 마우스클릭시 -->
             <div class="map_popup2" id="map_popup2" style="position:absolute;bottom:700px;left:10%">

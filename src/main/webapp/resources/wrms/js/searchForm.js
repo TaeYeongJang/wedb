@@ -499,7 +499,7 @@ $(document).ready(function (){
 						comboInfo     : { targetId : "#s_fac_code_nm" }
 					,	optionValInfo : { optId : "equip_no" , optTxt : "equip_name" }
 					,	optionInfo    : { postion : "top" , txt : "시설" , val : "" }
-					,	comboDataInfo : rawrisAjaxPost({
+					,	comboDataInfo : ajaxPost({
 															sql      		: sqlSearchFormMapper + "qms_sisul_list_from_equip_name"
 														,	key_word		: $("#equipNm").val()
 														,	s_gbn			: $("#s_management_data_gubun").val() 
@@ -517,7 +517,7 @@ $(document).ready(function (){
 						comboInfo     : { targetId : "#s_fac_code_nm" }
 					,	optionValInfo : { optId : "equip_no" , optTxt : "equip_name" }
 					,	optionInfo    : { postion : "top" , txt : "시설" , val : "" }
-					,	comboDataInfo : rawrisAjaxPost({
+					,	comboDataInfo : ajaxPost({
 															sql      		: sqlSearchFormMapper + "sisul_list_from_name"
 														,	key_word		: $("#equipNm").val()
 														,	user_buseo_code : bcd
@@ -540,7 +540,7 @@ $(document).ready(function (){
 					comboInfo     : { targetId : "#v_fac_code_nm" }
 				,	optionValInfo : { optId : "equip_no" , optTxt : "equip_name" }
 				,	optionInfo    : { postion : "top" , txt : "시설" , val : "" }
-				,	comboDataInfo : rawrisAjaxPost({
+				,	comboDataInfo : ajaxPost({
 														sql      		: sqlSearchFormMapper + "qms_sisul_list_from_equip_name"
 													,	key_word		: $("#v_equipNm").val()
 													,	s_gbn			: $("#v_management_data_gubun").val() 
@@ -744,7 +744,7 @@ function buseoHeadCodeChange(){
 						  comboInfo     : { targetId : "#s_buseo_branch_code" }
 						, optionInfo    : { postion  : "top" , txt : "지사" , val : "" }
 						, optionValInfo : { optId    : "buseo_branch_code"  , optTxt : "buseo_branch_name" }   
-						, comboDataInfo : rawrisAjaxPost({ sql              : sql
+						, comboDataInfo : ajaxPost({ sql              : sql
 							                            , s_buseo_head_code : searchConditionObj.s_buseo_head_code
 							                            , s_type            : searchConditionObj.s_type
 								                       })
@@ -754,7 +754,7 @@ function buseoHeadCodeChange(){
 						  comboInfo     : { targetId : "#s_buseo_branch_code" }
 						, optionInfo    : { postion  : "top" , txt : "지사" , val : "" }
 						, optionValInfo : { optId    : "buseo_branch_code"  , optTxt : "buseo_branch_name" }   
-						, comboDataInfo : rawrisAjaxPost({ sql              : sql
+						, comboDataInfo : ajaxPost({ sql              : sql
 							                            , s_buseo_head_code : searchConditionObj.s_buseo_head_code
 								                       })				                       
 												};
@@ -787,7 +787,7 @@ function v_buseoHeadCodeChange(){
 				  comboInfo     : { targetId : "#v_buseo_branch_code" }
 				, optionInfo    : { postion  : "top" , txt : "지사" , val : "" }
 				, optionValInfo : { optId    : "buseo_branch_code"  , optTxt : "buseo_branch_name" }   
-				, comboDataInfo : rawrisAjaxPost({ sql              : sql
+				, comboDataInfo : ajaxPost({ sql              : sql
 					                             , s_buseo_head_code : searchConditionObj.v_buseo_head_code
 						                       })				                       
 										};
@@ -820,7 +820,7 @@ function buseoBranchCodeChange(){
 					comboInfo     : { targetId	: "#s_fac_code" 									}
 				,	optionInfo    : { postion	: "top",		txt 	: "선택",			val : ""	}
 				,	optionValInfo : { optId		: "fac_code",	optTxt	: "fac_name"				} 
-				,	comboDataInfo : rawrisAjaxPost({
+				,	comboDataInfo : ajaxPost({
 										sql					: sqlSearchFormMapper + sqlEquipListKind
 									,	s_buseo_branch_code	: searchConditionObj.s_buseo_branch_code
 									})
@@ -833,7 +833,7 @@ function buseoBranchCodeChange(){
 						comboInfo     : { targetId	: "#s_fac_code" 									}
 					,	optionInfo    : { postion	: "top",		txt 	: "선택",			val : ""	}
 					,	optionValInfo : { optId		: "param_mng_no",	optTxt	: "equip_name"			} 
-					,	comboDataInfo : rawrisAjaxPost({
+					,	comboDataInfo : ajaxPost({
 											sql					: sqlSearchFormMapper + sqlEquipListKind
 										,	s_buseo_branch_code	: searchConditionObj.s_buseo_branch_code
 										,	s_gbn	            : $("#s_management_data_gubun :selected").val()
@@ -848,7 +848,7 @@ function buseoBranchCodeChange(){
 					comboInfo     : { targetId	: "#s_fac_code" 									}
 				,	optionInfo    : { postion	: "top",		txt 	: "선택",			val : ""	}
 				,	optionValInfo : { optId		: "equip_no",	optTxt	: "equip_name"				} 
-				,	comboDataInfo : rawrisAjaxPost({
+				,	comboDataInfo : ajaxPost({
 										sql					: sqlSearchFormMapper + sqlEquipListKind
 									,	s_buseo_branch_code	: searchConditionObj.s_buseo_branch_code
 									,	s_gbn	            : $("#s_management_data_gubun :selected").val()
@@ -876,7 +876,7 @@ function buseoBranchCodeChange(){
 					comboInfo     : { targetId	: "#s_equip_no" 									}
 				,	optionInfo    : { postion	: "top",		txt 	: "선택",			val : ""	}
 				,	optionValInfo : { optId		: "equip_no",	optTxt	: "equip_name"				} 
-				,	comboDataInfo : rawrisAjaxPost({
+				,	comboDataInfo : ajaxPost({
 										sql					: sqlSearchFormMapper + sqlEquipListKind
 									,	s_buseo_branch_code	: searchConditionObj.s_buseo_branch_code
 									,	s_fac_kind_code		: searchConditionObj.facKind
@@ -905,7 +905,7 @@ function v_buseoBranchCodeChange(){
 					comboInfo     : { targetId	: "#v_fac_code" 									}
 				,	optionInfo    : { postion	: "top",		txt 	: "선택",			val : ""	}
 				,	optionValInfo : { optId		: "equip_no",	optTxt	: "equip_name"				} 
-				,	comboDataInfo : rawrisAjaxPost({
+				,	comboDataInfo : ajaxPost({
 										sql					: sqlSearchFormMapper + 'qms_auto_sisul_list_from_buseo_branch_code'
 									,	s_buseo_branch_code	: searchConditionObj.v_buseo_branch_code
 									,	s_gbn	            : $("#v_management_data_gubun :selected").val()
@@ -927,7 +927,7 @@ function setQmsReason(){
 			comboInfo     : { targetId	: "#s_qms_reason" 									}
 		,	optionInfo    : { postion	: "top",		txt 	: "보정사유",		val : ""	}
 		,	optionValInfo : { optId		: "qms_cd",		optTxt	: "qms_cd_nm"				} 
-		,	comboDataInfo : rawrisAjaxPost({
+		,	comboDataInfo : ajaxPost({
 								sql			: sqlSearchFormMapper + 'select_qms_reason_list'
 							,	s_grp_cd 	: "QC_CD"
 							,	s_attr1_a	: "A"
@@ -948,7 +948,7 @@ function setEquipHeadBuseoCode(){
 			  comboInfo     : { targetId : "#s_buseo_head_code" }
 			, optionInfo    : { postion  : "top" , txt : "본부" , val : "" }
 			, optionValInfo : { optId    : "buseo_head_code"    , optTxt : "buseo_head_name" } 
-			, comboDataInfo : rawrisAjaxPost({ sql             : sqlSearchFormMapper + "list_for_buseo_head_list"
+			, comboDataInfo : ajaxPost({ sql             : sqlSearchFormMapper + "list_for_buseo_head_list"
 				                            ,  s_fac_kind_code : $("#s_fac_kind_code :selected").val()
 				                            })
 	}; 
@@ -966,7 +966,7 @@ function v_setEquipHeadBuseoCode(){
 			  comboInfo     : { targetId : "#v_buseo_head_code" }
 			, optionInfo    : { postion  : "top" , txt : "본부" , val : "" }
 			, optionValInfo : { optId    : "buseo_head_code"    , optTxt : "buseo_head_name" } 
-			, comboDataInfo : rawrisAjaxPost({ sql             : sqlSearchFormMapper + "list_for_buseo_head_list"
+			, comboDataInfo : ajaxPost({ sql             : sqlSearchFormMapper + "list_for_buseo_head_list"
 				                            ,  s_fac_kind_code : '1'
 				                            })
 	}; 
@@ -984,7 +984,7 @@ function setQmsMethodCode(){
 			    comboInfo     : { targetId : "#s_qms_method" }
 		    ,	optionInfo    : { postion : "top" , txt : "품질관리방법" , val : "" }
 			,	optionValInfo : { optId : "cd" , optTxt : "cd_nm" }
-			,   comboDataInfo : rawrisAjaxPost({
+			,   comboDataInfo : ajaxPost({
 													sql      : sqlSearchFormMapper + "list_qms_combo_data"
 												,	key_word : 'QC_METHOD'
 											    }) 
@@ -1183,7 +1183,7 @@ function equipNoChange(){
 					radioInfo		: { targetId	: "#sisul_sub_equip_no_area",			classNm		: "col-xs-11"}
 				,	radioProp		: { radioId		: "sisul_sub_equip_",					radioNm		: "sisul_sub_equip_no",	radioType: 'checkbox',	style	: "margin-left:10px;" }
 				,	optionValInfo	: { optCode		: "equip_no",	optTxt : "equip_name",	optChecked	: "checked" } 
-				,	radioDataInfo	: rawrisAjaxPost({
+				,	radioDataInfo	: ajaxPost({
 										sql					: sqlMapper + "equip_sisul_sub_list"
 									  ,	s_equip_no			: searchConditionObj.s_equip_no
 									  }) 
@@ -1233,7 +1233,7 @@ function v_equipNoChange(){
 * 품질관리 개별 장비 선택시 필요
 **************************************************************************************/
 function setQmsBaseInfo(){
-	var equipNavObjList	= rawrisAjaxPost({
+	var equipNavObjList	= ajaxPost({
 		sql			: sqlSearchFormMapper + "set_searchform_from_qmsSisulName"
 	, 	equip_no	: searchConditionObj.s_equip_no
 	});
@@ -1271,7 +1271,7 @@ function setQmsBaseInfo(){
 }
 
 function v_setQmsBaseInfo(){
-	var equipNavObjList	= rawrisAjaxPost({
+	var equipNavObjList	= ajaxPost({
 		sql			: sqlSearchFormMapper + "set_searchform_from_qmsSisulName"
 	, 	equip_no	: searchConditionObj.v_equip_no
 	});
@@ -1311,7 +1311,7 @@ function setEquipBaseInfo(){
 //		$("#final_object_view").html('');
 //		rawrisShowErrMsgDivAdd('setEquipBaseInfo() </br>');
 
-	var equipNavObjList	= rawrisAjaxPost({
+	var equipNavObjList	= ajaxPost({
 		sql			: sqlSearchFormMapper + "set_searchform_from_sisulname"
 	, 	equip_no	: searchConditionObj.s_equip_no
 	});

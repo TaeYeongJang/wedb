@@ -20,60 +20,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
 	
  	<style>
-         #windy {
-             width: 100%;
-             height: 100%;
-         }
-         
-         #windy #bottom {
-		   	width: 900px;
-   			left: 440px;
-		}
-		
-		
-		.progress-line {
-		    width: 850px;
-		}
-
-		.select_date {
-		   	color: #706868;
-		}
-		
-		.coordinate {
-            position: absolute;
-            bottom: 10px;
-            right: 50%;
-        }
         
-		#windy #map-container .leaflet-control-container {
-		    display: block;
-		}
-		
-		 .leaflet-top {
-		    left: 1000px;
-   			top: 60px;
-		}
-		
-		#windy .leaflet-container a.leaflet-popup-close-button {
-		  font-size: 22px;
-		  padding: 7px 23px 0 0;
-		}
 
-		.blank-div-icon {
-		    opacity: 0;
-		  }
-		  
-		.leaflet-popup.center {
-								  margin-left: -100px !important;
-								  margin-top: -50px !important;
-								  left: 50% !important;
-								  top: 50% !important;
-								  transform: none !important;
-								};
-
-     </style>
+    </style>
      
-     <script type="text/javascript">
+    <script type="text/javascript">
 		var lineJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": {}, "geometry": { "type": "LineString", "coordinates": [[82.5732421875, 29.233683670282787], [84.4573974609375, 28.401064827220896], [82.4139404296875, 28.28019589809702]] } }] }
 		var pointJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [80.92529296875, 29.209713225868185] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [82.15576171875, 29.554345125748267] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [82.210693359375, 28.748396571187406] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [83.64990234375, 28.468691297348148] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [85.53955078125, 27.488781168937997] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [87.20947265625, 27.235094607795503] } }] }
 		var polygonJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": { "stroke": "#555555", "stroke-width": 2, "stroke-opacity": 1, "fill": "#555555", "fill-opacity": 0.5, "name": "rectangle" }, "geometry": { "type": "Polygon", "coordinates": [[[81.7987060546875, 28.86872905602898], [82.21618652343749, 28.86872905602898], [82.21618652343749, 29.176145182559758], [81.7987060546875, 29.176145182559758], [81.7987060546875, 28.86872905602898]]] } }, { "type": "Feature", "properties": { "stroke": "#555555", "stroke-width": 2, "stroke-opacity": 1, "fill": "#555555", "fill-opacity": 0.5, "name": "polygon" }, "geometry": { "type": "Polygon", "coordinates": [[[82.8973388671875, 28.753212537990336], [82.8094482421875, 28.51696944040106], [83.07861328125, 28.101057958669447], [83.86962890625, 28.41555985166584], [83.4686279296875, 28.99372720461893], [82.8973388671875, 28.753212537990336]]] } }] }
@@ -193,7 +144,7 @@
 
 		    	      		circle.bindPopup(  popupContent('20', '10') , {
 		    	      	        maxWidth: 800,
-		    	      	        offset: [0, 0], // 앞이 좌우 , 뒤가 위아래 -값이면 위로 올라감
+		    	      	        offset: [0, 3], // 앞이 좌우 , 뒤가 위아래 -값이면 위로 올라감
 		    	      	        keepInView : true,
 		    	      	      	zoomAnimation: true, //지도 확대
 		    	      	        //pane: 'myPopupPane', //팝업에 팝업 추가
@@ -229,7 +180,7 @@
 				console.log("error");
 			};
 
-			rawrisAjaxPost(param);
+			ajaxPost(param);
 
 		}
 
@@ -330,10 +281,6 @@
               '</div>';
 		   }
 
-		function pop_close2(){
-			$("#map_popup2").hide();
-		}
-
 		const options = {
 			    // Required: API key
        	    key: 'iFsNmn4OAAxQjl0PKyVylkGjF6jxxYvN', // REPLACE WITH YOUR KEY !!!
@@ -395,25 +342,6 @@
                     <li><a href="">염도</a></li>
                     <li><a href="">담수호</a></li>
                     <li><a href="">ADMS가뭄분석</a></li>
-                </ul>
-            </div>
-            <hr>
-            <hr>
-            <hr>
-            <!-- 팝업에서 지역 마우스클릭시 -->
-            <div class="map_popup2" id="map_popup2">
-                <a href="javascript:pop_close2()" class="btn_close" ><i class="fa-sharp fa-solid fa-xmark"></i></a>
-                <div class="map_popup2_title">
-                    <h3>고창
-                        <span class="color_step1 point_step point_step1">경고</span>
-                        <span class="asos">ASOS</span>
-                    </h3>
-                   
-                </div>  
-                <ul>
-                    <li><span class="tit">누적강수량</span><span class="con">1,549.7mm</span></li>
-                    <li><span class="tit">평년강수량</span><span class="con">1,007.8mm</span></li>
-                    <li><span class="tit">평년대비</span><span class="con">154%</span></li>
                 </ul>
             </div>
             <hr>
@@ -735,7 +663,7 @@
             </div>
             <hr>
             <div class="main_chart">
-                <p>그래프 개발 들어가는곳 이미지로 공간만</p>
+               <img src="<c:url value='/resources/sass/images/common/graph.png'/>" alt="그래프 오류">
             </div>
         </div>
     </section>

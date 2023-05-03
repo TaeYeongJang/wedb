@@ -37,7 +37,7 @@ $(document).ready(function(){
  		var displayInfoObj = {
 				dispTarget		: "#rawris_equip_quilityTotal_list_table > tbody"
 			,	dispDiv			: sqlDispDiv
-			,	resource		: rawrisAjaxPost(searchConditionObj)
+			,	resource		: (searchConditionObj)
 			,	displayColInfos : {
 					inq_equip_quality_list : [	{id:"list_name"			, align:"center"						, data_id1:"list_code"	, data_id2:"jisa_code"}
 											,	{id:"equip_cnt"			, align:"right"		, colType:"number"	, data_id1:"list_code"	, data_id2:"jisa_code"}

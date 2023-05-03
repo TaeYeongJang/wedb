@@ -89,6 +89,13 @@
 		    opacity: 0;
 		  }
   
+	  	.leaflet-popup-content-wrapper {
+		    width: 300px;
+		}
+
+		.leaflet-popup-content-wrapper {
+		    width: 261px;
+		}
 
      </style>
          
@@ -170,23 +177,6 @@
 			load_data(true);
 		} 
 		
-		const LeafIcon = L.Icon.extend({
-			options: {
-				shadowUrl: "<c:url value='/resources/sass/images/common/point_1.png'/>",
-				iconSize:     [10, 10], // 좌우넓이, 위아래높이
-				iconAnchor:   [0, 0], // 아이콘이 찍힐 위치 지정
-			    popupAnchor:  [3, 0] // 앞은 -면 왼쪽으로, 뒤는 -면 위로 올라감
-			}
-		});
-
-		const blueIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_1.png'/>"});
-		const yellowIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_2.png'/>"});
-		const orangeIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_3.png'/>"});
-		const redIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_4.png'/>"});
-
-
-		var cnt = 0;
-		
 		function load_data(need_init) {
 
 			var param = $.extend({}, searchConditionObj);
@@ -196,141 +186,60 @@
 				windyInit(options, windyAPI => {
 
 				   const { map } = windyAPI;
-				    
-				 
-		    	         var width = '80px';
-				    	          
-		    	      	for(key in data){
-							//console.log(data[key].OBSNM, data[key].OBSNM.length)
-		    	      		if(data[key].OBSNM.length > 7) width = '100px';
-		    	      		else if(data[key].OBSNM.length > 9) width = '120px';
-		    	      		else if(data[key].OBSNM.length > 10) width = '150px';
-		    	      		else if(data[key].OBSNM.length > 14) width = '200px';
-		    	      		else  width = '80px';
-		    	      		
-		    	      		const label =
-		    	      			'<div class="map_popup" style="position:absolute;top:30%;left:50%; width:'+ width + ' ">' +
-		    	                '<h3>'+ data[key].OBSNM +'</h3>'  +
-		    	                '<span class="point popcolor_step1"></span>'  +
-		    	                '<p class="popcolor_step1">'+ data[key].AWSID + '</p></div>'
-		    	            	
-		    	            
-	    	                const myIcon = L.divIcon({
-									    	      		// 텍스트 레이블을 포함하는 HTML 요소 생성
-											    	      html: label,
-											    	      // 요소의 크기 및 위치 설정
-											    	      iconSize: [100, 40],
-											    	      iconAnchor: [50, 50],
-											    	      popupAnchor: [0, 0],
-										    	     });        
-				    	          
-		    	      		var marker = L.marker([data[key].Y, data[key].X], {
-					    	    // 아이콘을 DivIcon으로 생성
-					    	    icon: myIcon
-					    	    //,
-					    	    //title: "My Marker", 
-		    	      		    //tooltipAnchor: [0, -30], 
-		    	      		    //draggable: true, 
-		    	      		   // riseOnHover: true, 
-		    	      		    //permanent: false,
-		    	      		    //zIndexOffset: 1000 // 마커 레이어 순서 변경
-					    	  });
-		    	      		
-		    	      		marker.addTo(map);
-	
-		    	      		 /*  var tooltip = L.tooltip({
-			    	      		  className: 'my-custom-tooltip',  // 툴팁에 사용될 클래스명
-			    	      		  permanent: false,  // 툴팁이 항상 표시될지 여부
-			    	      		  direction: 'top'  // 툴팁이 마커 위에 표시될 방향 bottom
-			    	      			 // offset: L.point(0, -20) // 마커와 툴팁 사이의 간격 조정
-		    	      		}).setContent(popupContent);  // 툴팁에 추가될 HTML 요소 
-
-		    	      		marker.bindPopup(tooltip); */
-		    	      		
-		    	      		//marker.bindPopup("<b>Hello world!</b><br>I am a popup.");
-		    	      		
-		    	      		var el = document.createElement('div');
-		    	      		el.innerHTML = popupContent;
-		    	      		
-		    	      		marker.bindPopup(  popupContent('20', '10') , {
-		    	      	        maxWidth: 800,
-		    	      	        offset: [40, -30] // 앞이 좌우 , 뒤가 위아래 -값이면 위로 올라감
-		    	      	       //, className: 'my-popup'
-		    	      	    });
-		    	      		
-		    	      		map.on('zoomend', function () {
-		    	      		  var zoomLevel = map.getZoom();
-		    	      		  if (zoomLevel < 7) {
-		    	      			 
-		    	      		    marker.setIcon(L.divIcon({
-		    	      		      className: 'blank-div-icon',
-		    	      		      iconSize: [0, 0],
-		    	      		    })); // 빈 아이콘을 사용하여 마커를 숨깁니다.
-		    	      		  } else {
-		    	      		    marker.setIcon(myIcon);
-		    	      		  }
-		    	      		});
+				   var markerLayer = L.layerGroup().addTo(map); 
+ 	          
+				   const videos = [
+					   {
+					     title: 'Video 1',
+					     url: 'https://www.youtube.com/embed/jHd1u_lM32c?start=937&autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+					     latitude: 37.1665,
+					     longitude: 126.1580
+					   },
+					   {
+					     title: 'Video 2',
+					     url: 'https://www.youtube.com/embed/jHd1u_lM32c?start=937&autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+					     latitude: 37.2770,
+					     longitude: 126.6710
+					   },
+					   {
+					     title: 'Video 3',
+					     url: 'https://www.youtube.com/embed/jHd1u_lM32c?start=937&autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+					     latitude: 37.5875,
+					     longitude: 126.9880
+					   }
+					   // ...
+					 ];
 
 
+				// 마커 생성 후 배열에 추가
+				   const markers = [];
+				   videos.forEach((video) => {
+				     const popup = L.popup()
+				       .setContent('<iframe width="200" height="150" src="${video.url}" frameborder="0" allowfullscreen></iframe>');
 
+				     const marker = L.marker([video.latitude, video.longitude])
+				       .bindTooltip('<iframe width="200" height="150" src="${video.url}" frameborder="0" allowfullscreen></iframe>')
+				       .addTo(map);
+				     
+				     marker.on('mouseover', function(e) {
+				       this.openTooltip();
+				       this._tooltip._container.style.opacity = 1;
+				     });
+				     
+				     marker.on('mouseout', function(e) {
+				       this.closeTooltip();
+				     });
+				     
+				     marker.bindPopup(popup);
+				     markers.push(marker);
+				   });
 
-
-		    	      		
-		    	      		/* marker.on('click', function(e) {
-		    	      		    marker.openTooltip();
-		    	      		}); */
-		    	      		
-		    	      		/* marker.on('click', function (e) {
-		    	      		    e.originalEvent.stopPropagation(); // 마커 클릭 이벤트를 막기 위해 이벤트 전파 중지
-
-		    	      		    if (tooltipVisible) {
-		    	      		        marker.closeTooltip();
-		    	      		        tooltipVisible = false;
-		    	      		    } else {
-		    	      		        marker.bindTooltip(tooltip).openTooltip();
-		    	      		        tooltipVisible = true;
-		    	      		    }
-		    	      		}); */
-
-		    	      	
-		    	      		  
-		    	      		  
-		    	      		  
-		    	      		  
-		    	      		  
-		    	      		/* // 마커에 툴팁 바인딩
-		    	      		marker.bindTooltip(tooltip);
-		    	      		
-		    	      		marker.on('click', function(e) {
-		    	      		    this.openTooltip();
-		    	      		  });
-		    	      		 */
-		    	      		
-					    	  // 마커에 툴팁 추가
-					    	  //marker.bindTooltip('My Tooltip', { direction: 'top' }).openTooltip();
-
-					    	  // 지도에 마커 추가
-					    	 
-					    	  
-					    	  
-					    	  
-					    	  
-		    	  //var newMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-		    	 // const markers = L.marker.addLayer(lightData);
-		    	  //const markers = L.markerClusterGroup().addLayer(lightData);
-
-		    	  // marker clustering
-		    	  //map.addLayer(markers);
-		    	  
-					    	/*   var marker = L.marker([data[key].Y, data[key].X])
-					    		.bindPopup('<iframe width="300" height="300" src="https://www.youtube.com/embed/jHd1u_lM32c?start=937&autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')
-					    		.addTo(map)
-					    		.openPopup(); */
-		    	      	}
-		    	      	
-		    	       // L.control.locate().addTo(map);
-
-		    
+				   // 모든 마커의 툴팁을 열어줌
+				   markers.forEach((marker) => {
+				     marker.openTooltip();
+				   });
+    	
+		    	       	
 				});
 				
 				$(".leaflet-left").css('left','1000px');
@@ -343,108 +252,9 @@
 				console.log("error");
 			};
 
-			rawrisAjaxPost(param);
+			ajaxPost(param);
 
 		}
-		
-		  const popupContent = ( test, test2 ) => {
-          	
-			   return '<div>'+
-              '<div class="popup_common" id="common_pop" >' +
-                  /* '<a href="javascript:pop_close()" class="btn_close"><i class="fa-sharp fa-solid fa-xmark"></i></a>' + */
-                  <!-- pop_con -->
-                  '<div class="pop_con">' +
-                      '<div class="pop_con__info">' +
-                          '<h4>금계</h4>' +
-                          '<div class="info_wrap">' +
-                              '<dl>' +
-                                  '<dt>전일 저수율(%)</dt>' +
-                                  '<dd>'+ test +'</dd>' +
-                              '</dl>' +
-                              '<dl>' +
-                                  '<dt>금일 저수율(%)</dt>' +
-                                  '<dd>'+ test2 +'</dd>' +
-                              '</dl>' +
-                              '<dl>' +
-                                  '<dt>관할지사</dt>' +
-                                  '<dd>경북 영주, 봉화</dd>' +
-                              '</dl>' +
-                              '<dl>' +
-                                  '<dt>관할지사</dt>' +
-                                  '<dd>경북 영주, 봉화</dd>' +
-                              '</dl>' +
-                          '</div>' +
-                          '<div class="img"><img src="../resources/sass/images/common/img_sample.png"></div>' +
-                      '</div>' +
-                      '<hr>' +                 
-                      '<div class="pop_con__list">' +
-                          '<div class="tab_type1">' +
-                              '<ul>' +
-                                  '<li><a href="" class="on">수위</a></li>' +
-                                  '<li><a href="">수질</a></li>' +
-                                  '<li><a href="">가동</a></li>' +
-                                  '<li><a href="">변위</a></li>' +
-                                  '<li><a href="">누수</a></li>' +
-                                  '<li><a href="">지진</a></li>' +
-                              '</ul>' +
-                          '</div>' +
-                          '<div class="table_type_pop1">' +
-                              '<table>' +
-                                  '<colgroup>' +
-                                  '<col width="28%">' +
-                                  '<col>' +
-                                  '</colgroup>' +
-                                  '<tbody><tr>' +
-                                      '<th>홍수위 (EL.m)</th>' +
-                                      '<td>307.80</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>만수위 (EL.m)</th>' +
-                                      '<td>307.80</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>사수위 (EL.m)</th>' +
-                                      '<td>307.80</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>총저수량</th>' +
-                                      '<td>5,293</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>유효저수량</th>' +
-                                      '<td>5,271</td>' +
-                                  '</tr>' +
-                              '</tbody></table>' +
-
-                              '<table>' +
-                                  '<colgroup>' +
-                                  '<col width="28%">' +
-                                  '<col>' +
-                                  '</colgroup>' +
-                                  '<tbody><tr>' +
-                                      '<th>기준일시</th>' +
-                                      '<td>2022-06-20</td>' +
-                                      '<td>2022-06-21 11:20</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>저수량</th>' +
-                                      '<td>2,799</td>' +
-                                      '<td>2,760</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>수위(EL.m)</th>' +
-                                      '<td>299.28</td>' +
-                                      '<td>299.14</td>' +
-                                  '</tr>' +
-                              '</tbody></table>' +
-                          '</div>' +
-                      '<hr>' +  
-                  '</div>' +    '</div>' +
-              '</div>';
-		   }
-		
-		
-		
 
 		
 		function pop_close2(){
@@ -459,17 +269,6 @@
        	    lon: 127.492516,
        	    zoom: 8,
 		};
-
-		
-
-		
-/* 		<div class="map_popup" style="position:absolute;top:30%;left:50%">
-	        <h3>흑산도</h3>
-	        <span class="point popcolor_step1"></span>
-	        <p class="popcolor_step1">436.2</p>
-	    </div> */
-	    
-	 
 	    
 	</script>
 </head>
@@ -545,48 +344,6 @@
                 </div>
                 <div class="play_pause"><i class="fa-solid fa-play"></i></div>           
             </div>   -->      
-            <hr>
-            <!-- 관심 -->
-            <div class="map_popup" style="position:absolute;top:30%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step1"></span>
-                <p class="popcolor_step1">436.2</p>
-            </div>
-             <!-- 주의 -->
-             <div class="map_popup" style="position:absolute;top:35%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step2"></span>
-                <p class="popcolor_step2">436.2</p>
-            </div>
-            <!-- 경계 -->
-              <div class="map_popup" style="position:absolute;top:40%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step3"></span>
-                <p class="popcolor_step3">436.2</p>
-            </div>
-            <!-- 경고 -->
-            <div class="map_popup" style="position:absolute;top:45%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step4"></span>
-                <p class="popcolor_step4">436.2</p>
-            </div>
-            <hr>
-            <!-- 팝업에서 지역 마우스클릭시 -->
-            <div class="map_popup2" id="map_popup2" style="position:absolute;bottom:700px;left:10%">
-                <a href="javascript:pop_close2()" class="btn_close"><i class="fa-sharp fa-solid fa-xmark"></i></a>
-                <div class="map_popup2_title">
-                    <h3>고창
-                        <span class="color_step1 point_step point_step1">경고</span>
-                        <span class="asos">ASOS</span>
-                    </h3>
-                   
-                </div>  
-                <ul>
-                    <li><span class="tit">누적강수량</span><span class="con">1,549.7mm</span></li>
-                    <li><span class="tit">평년강수량</span><span class="con">1,007.8mm</span></li>
-                    <li><span class="tit">평년대비</span><span class="con">154%</span></li>
-                </ul>
-            </div>
             <hr>
             <!-- 범례 -->
             <div class="legend_box">

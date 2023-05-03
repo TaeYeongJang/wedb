@@ -4,68 +4,44 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  	
     <title>DIMAS 재난안전종합상황실</title>
     
     <%@include file="/WEB-INF/views/tile/default/PageScript.jsp"%>
 	<%@include file="/resources/wrms/inc/jsgrid.inc"%>
-	
+    
+  <%--   <link href="<c:url value='/resources/wrms/image/favicon.png'/>" rel="shortcut icon" type="image/x-icon">  --%>
 	<link rel="stylesheet" href="<c:url value='/resources/sass/css/main.css?v=01'/>" /> 
     <!-- icon- font awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
- <style>
+
+    <style>
          #windy {
              width: 100%;
-             height: 100%;
+             height: 900px;
          }
          
          #windy #bottom {
-		   	width: 900px;
+		   	width: 1015px;
    			left: 440px;
 		}
 		
-		
-		.progress-line {
-		    width: 850px;
-		}
-
 		.select_date {
 		   	color: #706868;
 		}
-		
-		.coordinate {
-            position: absolute;
-            bottom: 10px;
-            right: 50%;
-        }
-        
-		#windy #map-container .leaflet-control-container {
-		    display: block;
-		}
-		
-		 .leaflet-top {
-		    left: 1000px;
-   			top: 60px;
-		}
-		
-		#windy .leaflet-container a.leaflet-popup-close-button {
-		  font-size: 22px;
-		  padding: 7px 23px 0 0;
-		}
 
-		.blank-div-icon {
-		    opacity: 0;
-		  }
      </style>
-     
-     <script type="text/javascript">
-		var lineJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": {}, "geometry": { "type": "LineString", "coordinates": [[82.5732421875, 29.233683670282787], [84.4573974609375, 28.401064827220896], [82.4139404296875, 28.28019589809702]] } }] }
-		var pointJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [80.92529296875, 29.209713225868185] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [82.15576171875, 29.554345125748267] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [82.210693359375, 28.748396571187406] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [83.64990234375, 28.468691297348148] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [85.53955078125, 27.488781168937997] } }, { "type": "Feature", "properties": {}, "geometry": { "type": "Point", "coordinates": [87.20947265625, 27.235094607795503] } }] }
-		var polygonJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": { "stroke": "#555555", "stroke-width": 2, "stroke-opacity": 1, "fill": "#555555", "fill-opacity": 0.5, "name": "rectangle" }, "geometry": { "type": "Polygon", "coordinates": [[[81.7987060546875, 28.86872905602898], [82.21618652343749, 28.86872905602898], [82.21618652343749, 29.176145182559758], [81.7987060546875, 29.176145182559758], [81.7987060546875, 28.86872905602898]]] } }, { "type": "Feature", "properties": { "stroke": "#555555", "stroke-width": 2, "stroke-opacity": 1, "fill": "#555555", "fill-opacity": 0.5, "name": "polygon" }, "geometry": { "type": "Polygon", "coordinates": [[[82.8973388671875, 28.753212537990336], [82.8094482421875, 28.51696944040106], [83.07861328125, 28.101057958669447], [83.86962890625, 28.41555985166584], [83.4686279296875, 28.99372720461893], [82.8973388671875, 28.753212537990336]]] } }] }
-
+         
+	<script type="text/javascript">
 		var searchConditionObj 	= {
 				s_kind_time : 'minute'
 			,	uBcd		: '${details.level_buseo_code}'
@@ -87,13 +63,13 @@
 
 	        setBetweenDateTime();    
 			searchData();
+	   		
+	   		//$(".progress-line").css("width", "1500px");
 	   		$("#btn_search").click(function () {
 				 searchData();
 	   		});
 	   		
 	   		$("#common_pop").css('display','none');
-	   		
-	   		
 
 		});
 		
@@ -124,7 +100,7 @@
            //window.parent.makeRightTopHTML('/krcics/kma/tmplC/kma-rainfall-index.do?' + param);
 	 
 			
-			searchConditionObj.sql = sqlMapper + "get_aws_test";
+			searchConditionObj.sql = sqlMapper + "get_aws_new_list";
 			searchConditionObj.base_dt = "20230317";
 			searchConditionObj.db_type = "rawris";  
 			searchConditionObj.type = "2"; 
@@ -137,6 +113,14 @@
 			load_data(true);
 		} 
 		
+		/* var blueIcon = L.icon({
+		    iconUrl: "<c:url value='/resources/sass/images/common/point_1.png'/>",
+		    iconSize:     [7, 7], // size of the icon
+		    iconAnchor:   [0, 0], // point of the icon which will correspond to marker's location
+		    popupAnchor:  [0,0 ] // point from which the popup should open relative to the iconAnchor
+		}); */
+		
+
 		const LeafIcon = L.Icon.extend({
 			options: {
 				shadowUrl: "<c:url value='/resources/sass/images/common/point_1.png'/>",
@@ -150,7 +134,14 @@
 		const yellowIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_2.png'/>"});
 		const orangeIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_3.png'/>"});
 		const redIcon = new LeafIcon({iconUrl: "<c:url value='/resources/sass/images/common/point_4.png'/>"});
+		
+		
 
+/* 		const mGreen = L.marker([51.5, -0.09], {icon: greenIcon}).bindPopup('I am a green leaf.').addTo(map);
+		const mRed = L.marker([51.495, -0.083], {icon: redIcon}).bindPopup('I am a red leaf.').addTo(map);
+		const mOrange = L.marker([51.49, -0.1], {icon: orangeIcon}).bindPopup('I am an orange leaf.').addTo(map);
+		const mOrange = L.marker([51.49, -0.1], {icon: orangeIcon}).bindPopup('I am an orange leaf.').addTo(map); */
+		
 
 		var cnt = 0;
 		
@@ -162,147 +153,105 @@
 
 				windyInit(options, windyAPI => {
 
-				   const { map } = windyAPI;
-				    
-				 
-		    	         var width = '80px';
-				    	          
-		    	      	for(key in data){
-							//console.log(data[key].OBSNM, data[key].OBSNM.length)
-		    	      		if(data[key].OBSNM.length > 7) width = '100px';
-		    	      		else if(data[key].OBSNM.length > 9) width = '120px';
-		    	      		else if(data[key].OBSNM.length > 10) width = '150px';
-		    	      		else if(data[key].OBSNM.length > 14) width = '200px';
-		    	      		else  width = '80px';
-		    	      		
-		    	      		const label =
-		    	      			'<div class="map_popup" style="position:absolute;top:30%;left:50%; width:'+ width + ' ">' +
-		    	                '<h3>'+ data[key].OBSNM +'</h3>'  +
-		    	                '<span class="point popcolor_step1"></span>'  +
-		    	                '<p class="popcolor_step1">'+ data[key].AWSID + '</p></div>'
-		    	            	
-		    	            
-	    	                const myIcon = L.divIcon({
-									    	      		// 텍스트 레이블을 포함하는 HTML 요소 생성
-											    	      html: label,
-											    	      // 요소의 크기 및 위치 설정
-											    	      iconSize: [100, 40],
-											    	      iconAnchor: [50, 50],
-											    	      popupAnchor: [0, 0],
-										    	     });        
-				    	          
-		    	      		var marker = L.marker([data[key].Y, data[key].X], {
-					    	    // 아이콘을 DivIcon으로 생성
-					    	    icon: myIcon
-					    	    //,
-					    	    //title: "My Marker", 
-		    	      		    //tooltipAnchor: [0, -30], 
-		    	      		    //draggable: true, 
-		    	      		   // riseOnHover: true, 
-		    	      		    //permanent: false,
-		    	      		    //zIndexOffset: 1000 // 마커 레이어 순서 변경
-					    	  });
-		    	      		
-		    	      		marker.addTo(map);
-	
-		    	      		 /*  var tooltip = L.tooltip({
-			    	      		  className: 'my-custom-tooltip',  // 툴팁에 사용될 클래스명
-			    	      		  permanent: false,  // 툴팁이 항상 표시될지 여부
-			    	      		  direction: 'top'  // 툴팁이 마커 위에 표시될 방향 bottom
-			    	      			 // offset: L.point(0, -20) // 마커와 툴팁 사이의 간격 조정
-		    	      		}).setContent(popupContent);  // 툴팁에 추가될 HTML 요소 
+				    const { map } = windyAPI;
+				   
+				    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+				    });
+				    osm.addTo(map);
+				    // map.addLayer(osm)
 
-		    	      		marker.bindPopup(tooltip); */
-		    	      		
-		    	      		//marker.bindPopup("<b>Hello world!</b><br>I am a popup.");
-		    	      		
-		    	      		var el = document.createElement('div');
-		    	      		el.innerHTML = popupContent;
-		    	      		
-		    	      		marker.bindPopup(  popupContent('20', '10') , {
-		    	      	        maxWidth: 800,
-		    	      	        offset: [40, -30] // 앞이 좌우 , 뒤가 위아래 -값이면 위로 올라감
-		    	      	       //, className: 'my-popup'
-		    	      	    });
-		    	      		
-		    	      		map.on('zoomend', function () {
-		    	      		  var zoomLevel = map.getZoom();
-		    	      		  if (zoomLevel < 7) {
-		    	      			 
-		    	      		    marker.setIcon(L.divIcon({
-		    	      		      className: 'blank-div-icon',
-		    	      		      iconSize: [0, 0],
-		    	      		    })); // 빈 아이콘을 사용하여 마커를 숨깁니다.
-		    	      		  } else {
-		    	      		    marker.setIcon(myIcon);
-		    	      		  }
-		    	      		});
+				    // water color 
+				    var watercolor = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}', {
+				        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+				        subdomains: 'abcd',
+				        minZoom: 1,
+				        maxZoom: 16,
+				        ext: 'jpg'
+				    });
+				    // watercolor.addTo(map)
 
+				    // dark map 
+				    var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+				        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+				        subdomains: 'abcd',
+				        maxZoom: 19
+				    });
+				    // dark.addTo(map)
 
+				    // google street 
+				    googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+				        maxZoom: 20,
+				        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+				    });
+				    // googleStreets.addTo(map);
 
+				    //google satellite
+				    googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+				        maxZoom: 20,
+				        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+				    });
+				    // googleSat.addTo(map)
 
+				   /*  var wms = L.tileLayer.wms("http://localhost:8080/geoserver/wms", {
+				        layers: 'geoapp:admin',
+				        format: 'image/png',
+				        transparent: true,
+				        attribution: "wms test"
+				    }); */
 
-		    	      		
-		    	      		/* marker.on('click', function(e) {
-		    	      		    marker.openTooltip();
-		    	      		}); */
-		    	      		
-		    	      		/* marker.on('click', function (e) {
-		    	      		    e.originalEvent.stopPropagation(); // 마커 클릭 이벤트를 막기 위해 이벤트 전파 중지
+				    var singleMarker = L.marker([37.390476, 127.492516], { icon: myIcon, draggable: true });
+				    var popup = singleMarker.bindPopup('This is the Nepal. ' + singleMarker.getLatLng()).openPopup()
+				    popup.addTo(map);
 
-		    	      		    if (tooltipVisible) {
-		    	      		        marker.closeTooltip();
-		    	      		        tooltipVisible = false;
-		    	      		    } else {
-		    	      		        marker.bindTooltip(tooltip).openTooltip();
-		    	      		        tooltipVisible = true;
-		    	      		    }
-		    	      		}); */
+				    var secondMarker = L.marker([37.390776,127.492616], { icon: myIcon, draggable: true });
+	    			
+				    var baseMaps = {
+    				        "OSM": osm,
+    				        "Water color map": watercolor,
+    				        'Dark': dark,
+    				        'Google Street': googleStreets,
+    				        "Google Satellite": googleSat,
+    				    };
+    			  
+    			  var overlayMaps = {
+    				        "First Marker": singleMarker,
+    				        'Second Marker': secondMarker,
+    				        'Point Data': pointData,
+    				        'Line Data': lineData,
+    				        'Polygon Data': polygonData,
+    				        'wms': wms
+    				    };
+    			  
+    			  L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+    			  
+    			  map.on('mouseover', function () {
+    			        console.log('your mouse is over the map')
+    			    })
 
-		    	      	
-		    	      		  
-		    	      		  
-		    	      		  
-		    	      		  
-		    	      		  
-		    	      		/* // 마커에 툴팁 바인딩
-		    	      		marker.bindTooltip(tooltip);
-		    	      		
-		    	      		marker.on('click', function(e) {
-		    	      		    this.openTooltip();
-		    	      		  });
-		    	      		 */
-		    	      		
-					    	  // 마커에 툴팁 추가
-					    	  //marker.bindTooltip('My Tooltip', { direction: 'top' }).openTooltip();
+	   			    map.on('mousemove', function (e) {
+	   			        document.getElementsByClassName('coordinate')[0].innerHTML = 'lat: ' + e.latlng.lat + 'lng: ' + e.latlng.lng;
+	   			        console.log('lat: ' + e.latlng.lat, 'lng: ' + e.latlng.lng)
+	   			    })
+    			    
+				   	 /* const object = {};
+		    			for(key in data){
 
-					    	  // 지도에 마커 추가
-					    	 
-					    	  
-					    	  
-					    	  
-					    	  
-		    	  //var newMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-		    	 // const markers = L.marker.addLayer(lightData);
-		    	  //const markers = L.markerClusterGroup().addLayer(lightData);
-
-		    	  // marker clustering
-		    	  //map.addLayer(markers);
-		    	  
-					    	/*   var marker = L.marker([data[key].Y, data[key].X])
-					    		.bindPopup('<iframe width="300" height="300" src="https://www.youtube.com/embed/jHd1u_lM32c?start=937&autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')
-					    		.addTo(map)
-					    		.openPopup(); */
-		    	      	}
-		    	      	
-		    	       // L.control.locate().addTo(map);
+		    			const mGreen = L.marker([data[key].Y, data[key].X], {icon: blueIcon, draggable:true});
+		    			var popup = mGreen.bindPopup('I am a green leaf.' + mGreen.getLatLng()).openPopup();
+		    			popup.addTo(map);
+		    			
+		    			//mGreen.toGeoJSON();
+		    			
+		    			  
+		    			  
+		    			//object['marker${cnt}'] = L.marker([data[key].Y, data[key].X], {icon: blueIcon}).bindPopup('<h3>흑산도</h3> <br />436.2').addTo(map);
+		    			//object['marker${cnt}'] = L.marker([data[key].Y, data[key].X], {icon: blueIcon, draggable:true}).bindPopup('I am a green leaf.' + ).addTo(map).openPopup();
+		    			cnt++;
+		    		}  */
 
 		    
 				});
-				
-				$(".leaflet-left").css('left','1000px');
-				$(".leaflet-left").css('top','60px');
-				
 				
 			};
 			
@@ -310,109 +259,17 @@
 				console.log("error");
 			};
 
-			rawrisAjaxPost(param);
+			ajaxPost(param);
 
 		}
 		
-		  const popupContent = ( test, test2 ) => {
-          	
-			   return '<div>'+
-              '<div class="popup_common" id="common_pop" >' +
-                  /* '<a href="javascript:pop_close()" class="btn_close"><i class="fa-sharp fa-solid fa-xmark"></i></a>' + */
-                  <!-- pop_con -->
-                  '<div class="pop_con">' +
-                      '<div class="pop_con__info">' +
-                          '<h4>금계</h4>' +
-                          '<div class="info_wrap">' +
-                              '<dl>' +
-                                  '<dt>전일 저수율(%)</dt>' +
-                                  '<dd>'+ test +'</dd>' +
-                              '</dl>' +
-                              '<dl>' +
-                                  '<dt>금일 저수율(%)</dt>' +
-                                  '<dd>'+ test2 +'</dd>' +
-                              '</dl>' +
-                              '<dl>' +
-                                  '<dt>관할지사</dt>' +
-                                  '<dd>경북 영주, 봉화</dd>' +
-                              '</dl>' +
-                              '<dl>' +
-                                  '<dt>관할지사</dt>' +
-                                  '<dd>경북 영주, 봉화</dd>' +
-                              '</dl>' +
-                          '</div>' +
-                          '<div class="img"><img src="../resources/sass/images/common/img_sample.png"></div>' +
-                      '</div>' +
-                      '<hr>' +                 
-                      '<div class="pop_con__list">' +
-                          '<div class="tab_type1">' +
-                              '<ul>' +
-                                  '<li><a href="" class="on">수위</a></li>' +
-                                  '<li><a href="">수질</a></li>' +
-                                  '<li><a href="">가동</a></li>' +
-                                  '<li><a href="">변위</a></li>' +
-                                  '<li><a href="">누수</a></li>' +
-                                  '<li><a href="">지진</a></li>' +
-                              '</ul>' +
-                          '</div>' +
-                          '<div class="table_type_pop1">' +
-                              '<table>' +
-                                  '<colgroup>' +
-                                  '<col width="28%">' +
-                                  '<col>' +
-                                  '</colgroup>' +
-                                  '<tbody><tr>' +
-                                      '<th>홍수위 (EL.m)</th>' +
-                                      '<td>307.80</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>만수위 (EL.m)</th>' +
-                                      '<td>307.80</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>사수위 (EL.m)</th>' +
-                                      '<td>307.80</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>총저수량</th>' +
-                                      '<td>5,293</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>유효저수량</th>' +
-                                      '<td>5,271</td>' +
-                                  '</tr>' +
-                              '</tbody></table>' +
-
-                              '<table>' +
-                                  '<colgroup>' +
-                                  '<col width="28%">' +
-                                  '<col>' +
-                                  '</colgroup>' +
-                                  '<tbody><tr>' +
-                                      '<th>기준일시</th>' +
-                                      '<td>2022-06-20</td>' +
-                                      '<td>2022-06-21 11:20</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>저수량</th>' +
-                                      '<td>2,799</td>' +
-                                      '<td>2,760</td>' +
-                                  '</tr>' +
-                                  '<tr>' +
-                                      '<th>수위(EL.m)</th>' +
-                                      '<td>299.28</td>' +
-                                      '<td>299.14</td>' +
-                                  '</tr>' +
-                              '</tbody></table>' +
-                          '</div>' +
-                      '<hr>' +  
-                  '</div>' +    '</div>' +
-              '</div>';
-		   }
 		
 		
 		
-
+		
+		function pop_close(){
+			$("#common_pop").hide();
+		}
 		
 		function pop_close2(){
 			$("#map_popup2").hide();
@@ -424,13 +281,21 @@
        	    // Optional: Initial state of the map
        	    lat: 37.390476,
        	    lon: 127.492516,
-       	    zoom: 8,
+       	    zoom: 7,
 		};
 
+		
+
+		
+/* 		<div class="map_popup" style="position:absolute;top:30%;left:50%">
+	        <h3>흑산도</h3>
+	        <span class="point popcolor_step1"></span>
+	        <p class="popcolor_step1">436.2</p>
+	    </div> */
+	    
+	 
 	    
 	</script>
-	
-	
 </head>
 <body>
     <!-- header -->
@@ -457,25 +322,25 @@
        </div>
     </header> 
     <hr>
-    <div id="dashboard_wrap">
-          <!-- container -->
+    <!-- container -->
     <section id="main_container">
         <!-- map -->
-        <!-- map -->
-        <div id="windy"> </div>
+        <div id="windy"></div>
+        <span class="hidden">임시로 지도 이미지 넣은 부분</span>       
         <div class="inner_map">
             <!-- 지도상단검색바 -->
             <div class="search_bar_sub">
                 <form>                        
-                    <label for=""><span class="label_tit">날짜지정</span></label>
+                    <label for="" class="label_tit">날짜지정</label>    
                     <input type="text" id="datetimepicker1" class="form-control select_date" placeholder="시작일" readonly>                               
                     <span class="typhen">-</span>
-                    <input type="text" id="datetimepicker2" class="form-control select_date" placeholder="종료일" readonly>      
+                    <input type="text" id="datetimepicker2" class="form-control select_date" placeholder="종료일" readonly>                   
                     <button type="button" class="btn_search">조회</button>
                     <button type="button" class="btn_excel">엑셀</button>
                 </form>                  
             </div>
             <hr>       
+            <div id="map_canvas"></div>
             <!-- sub_menu -->
             <div class="sub_menu">
                 <ul>
@@ -489,7 +354,7 @@
             </div>
             <hr>
             <!-- 플레이바 -->
-            <!-- <div class="progress_bar">
+           <!--  <div class="progress_bar">
                 <div class="progress_line">
                     <div class="avbl"></div>
                     <div class="played" style="width:200px">
@@ -500,36 +365,11 @@
                     <div class="box">22-06-01 12:00</div>
                 </div>
                 <div class="play_pause"><i class="fa-solid fa-play"></i></div>           
-            </div>        --> 
-            <hr>
-            <!-- 관심 -->
-           <!--  <div class="map_popup" style="position:absolute;top:30%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step1"></span>
-                <p class="popcolor_step1">436.2</p>
-            </div>
-             주의
-             <div class="map_popup" style="position:absolute;top:35%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step2"></span>
-                <p class="popcolor_step2">436.2</p>
-            </div>
-            경계
-              <div class="map_popup" style="position:absolute;top:40%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step3"></span>
-                <p class="popcolor_step3">436.2</p>
-            </div>
-            경고
-            <div class="map_popup" style="position:absolute;top:45%;left:50%">
-                <h3>흑산도</h3>
-                <span class="point popcolor_step4"></span>
-                <p class="popcolor_step4">436.2</p>
-            </div> -->
+            </div>   -->      
             <hr>
             <!-- 팝업에서 지역 마우스클릭시 -->
-            <div class="map_popup2" id="map_popup2">
-                <a href="javascript:pop_close2()" class="btn_close" ><i class="fa-sharp fa-solid fa-xmark"></i></a>
+            <div class="map_popup2" id="map_popup2" style="position:absolute;bottom:700px;left:10%">
+                <a href="javascript:pop_close2()" class="btn_close"><i class="fa-sharp fa-solid fa-xmark"></i></a>
                 <div class="map_popup2_title">
                     <h3>고창
                         <span class="color_step1 point_step point_step1">경고</span>
@@ -555,6 +395,100 @@
                 </ul>
             </div>
             <hr>  
+            <!-- popup -->
+            <div class="popup_common" id="common_pop" style="position:absolute;bottom:0%;left:50%;transform:translate(-50%, -70%)">
+                <a href="javascript:pop_close()" class="btn_close"><i class="fa-sharp fa-solid fa-xmark"></i></a>
+                <!-- pop_con -->
+                <div class="pop_con">
+                    <div class="pop_con__info">
+                        <h4>금계</h4>
+                        <div class="info_wrap">
+                            <dl>
+                                <dt>전일 저수율(%)</dt>
+                                <dd>53.1</dd>
+                            </dl>
+                            <dl>
+                                <dt>금일 저수율(%)</dt>
+                                <dd>12.4</dd>
+                            </dl>
+                            <dl>
+                                <dt>관할지사</dt>
+                                <dd>경북 영주, 봉화</dd>
+                            </dl>
+                            <dl>
+                                <dt>관할지사</dt>
+                                <dd>경북 영주, 봉화</dd>
+                            </dl>
+                        </div>
+                        <div class="img"><img src="<c:url value='/resources/sass/images/common/img_sample.png'/>" alt=""></div>
+                    </div>
+                    <hr>                  
+                    <div class="pop_con__list">
+                        <div class="tab_type1">
+                            <ul>
+                                <li><a href="" class="on">수위</a></li>
+                                <li><a href="">수질</a></li>
+                                <li><a href="">가동</a></li>
+                                <li><a href="">변위</a></li>
+                                <li><a href="">누수</a></li>
+                                <li><a href="">지진</a></li>
+                            </ul>
+                        </div>	
+                        <div class="table_type_pop1">
+                            <table>
+                                <colgroup>
+                                <col width="28%">
+                                <col>
+                                </colgroup>
+                                <tbody><tr>
+                                    <th>홍수위 (EL.m)</th>
+                                    <td>307.80</td>
+                                </tr>
+                                <tr>
+                                    <th>만수위 (EL.m)</th>
+                                    <td>307.80</td>
+                                </tr>
+                                <tr>
+                                    <th>사수위 (EL.m)</th>
+                                    <td>307.80</td>
+                                </tr>
+                                <tr>
+                                    <th>총저수량</th>
+                                    <td>5,293</td>
+                                </tr>
+                                <tr>
+                                    <th>유효저수량</th>
+                                    <td>5,271</td>
+                                </tr>
+                            </tbody></table>
+
+                            <table>
+                                <colgroup>
+                                <col width="28%">
+                                <col>
+                                </colgroup>
+                                <tbody><tr>
+                                    <th>기준일시</th>
+                                    <td>2022-06-20</td>
+                                    <td>2022-06-21 11:20</td>
+                                </tr>
+                                <tr>
+                                    <th>저수량</th>
+                                    <td>2,799</td>
+                                    <td>2,760</td>
+                                </tr>
+                                <tr>
+                                    <th>수위(EL.m)</th>
+                                    <td>299.28</td>
+                                    <td>299.14</td>
+                                </tr>
+                            </tbody></table>
+                        </div>
+                        <hr>  
+                    </div>   
+                </div>
+                <!-- //pop_con -->
+            </div>
         </div>
     </section>    
     <hr>
@@ -866,7 +800,8 @@
             </div>
         </div>
     </section>
-</div>
+    <hr>
+
     
 </body>
 </html>

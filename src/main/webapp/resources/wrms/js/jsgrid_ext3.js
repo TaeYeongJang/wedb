@@ -37,7 +37,7 @@ jgexp.default_options = function() {
 	 * "jsgrid-pager-current-page",
 	 */
 
-	// data : rawrisAjaxPost(opt),
+	// data : (opt),
 	// fields : list[url] //dataTemplate
 	};
 

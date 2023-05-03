@@ -168,7 +168,7 @@ function checkUserEmail() {
 		}
 	};
 	
-	rawrisAjaxPost({ 
+	({ 
 		async : false,
 		sql : sqlMapper + "chk_user_email",
 		user_id : userId,
@@ -192,7 +192,7 @@ function registEmail(userId, userEmail) {
 		  , user_email : userEmail
 	};
 	
-	var rst = rawrisAjaxPost(userEmailInfo);
+	var rst = (userEmailInfo);
 	if(!rst) {
 		rawrisShowMsg("이메일 등록 중 장애가 발생했습니다.");
 		return false;
@@ -274,7 +274,7 @@ function checkUserId(userType, userId) {
 		}
 	};
 	
-	rawrisAjaxPost({
+	({
 		async : false,
 		sql : sqlMapper + "dup_user_info",
 		user_email : userId,
@@ -328,7 +328,7 @@ function changeSidoSelectbox() {
 		rawrisDynaGenSelectOptions(opt);
 	};
 	
-		rawrisAjaxPost({ 
+		({ 
 		sql : sqlMapper + "list_common_addr_sd_group",
 		successFn: fn
 	});
@@ -350,7 +350,7 @@ function changeSigunSelectbox(headCode) {
 		rawrisDynaGenSelectOptions(opt);
 	};
 	
-	rawrisAjaxPost({ 
+	({ 
 		sql : sqlMapper + "list_common_addr_sgg_group",
 		s_juso_do : headCode,
 		successFn: fn
@@ -372,7 +372,7 @@ function changeBonbuSelectbox() {
 	 	rawrisDynaGenSelectOptions(opt);
 	};
 	
-	rawrisAjaxPost({ 
+	({ 
 		sql : sqlMapper + "list_common_buseo_group",
 		successFn: fn
 	});
@@ -394,7 +394,7 @@ function changeJisaSelectbox(headCode) {
 		rawrisDynaGenSelectOptions(opt);
 	};
 	
-	rawrisAjaxPost({ 
+	({ 
 		sql : sqlMapper + "list_common_buseo_group",
 		s_buseo_head_code : headCode,
 		successFn: fn
@@ -485,7 +485,7 @@ function duplicateCheckUserEmail(userType, userEmail, gbn) {
 		}
 	};
 	
-	rawrisAjaxPost({
+	({
 		async : false,
 		sql : sqlMapper + "dup_chk_user_email",
 		user_email : userEmail,
@@ -514,7 +514,7 @@ function sendAuthnumMail(userType, userEmail, gbn) {
 	  	  , successFn	: callbackMailSuccess
 		  , failFn      : callbackMailFail
 	}
-	rawrisAjaxPost(authnumMailInfo);
+	(authnumMailInfo);
 }
 
 function callbackMailSuccess(rs) {
@@ -779,7 +779,7 @@ function memSignup() {
 		userAttrVals.org_name = org_name;
 		userAttrVals.building_admin_no = building_admin_no;
 		
-		var rst = rawrisAjaxPost(userAttrVals);
+		var rst = (userAttrVals);
 		if(!rst) {
 			rawrisShowMsg("회원가입 중 장애가 발생했습니다.");
 			return false;
