@@ -229,7 +229,7 @@
     <%@include file="/WEB-INF/views/tile/default/PageHeader.jsp"%>
     <hr>
     <div id="dashboard_wrap">
-          <!-- container -->
+    <!-- container -->
     <section id="main_container">
         <!-- map -->
         <!-- map -->
