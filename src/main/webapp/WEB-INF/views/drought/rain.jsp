@@ -223,8 +223,6 @@
 		            '</div>';
 	   }
 	</script>
-	
-	
 </head>
 <body>
     <!-- header -->
