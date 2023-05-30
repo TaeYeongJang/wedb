@@ -8,7 +8,7 @@ var g_top_menu_inited = false;
 $(document).ready(function(){ 
 	load_top_menu();
 });
-
+ 
 function load_top_menu() {
 	if(g_top_menu_inited || "anonymousUser" == "${user}")
 		return;
