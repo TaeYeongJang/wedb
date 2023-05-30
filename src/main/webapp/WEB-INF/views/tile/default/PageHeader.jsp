@@ -12,7 +12,7 @@ $(document).ready(function(){
 function load_top_menu() {
 	if(g_top_menu_inited || "anonymousUser" == "${user}")
 		return;
-
+	
 	g_top_menu_inited = true;
 
 	ajaxPost({
