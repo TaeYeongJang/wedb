@@ -79,7 +79,7 @@
                     <a href=""><i class="fa-solid fa-xmark"></i></a>
                     <h3>비상근무현황</h3>
                 </div>
-                <ul class="duty__list scrollbar_custom">
+                <ul class="duty__list scrollbar_custom">  
                     <li>
                         <i class="fa-regular fa-clock"></i>
                         <span class="datetime">[2022-10-29 08:20~]</span>
