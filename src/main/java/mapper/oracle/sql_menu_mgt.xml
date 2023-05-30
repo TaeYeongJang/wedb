@@ -1,80 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
-<mapper namespace="rawris.wrms.menumgt"> 
+<mapper namespace="rawris.krc.menumgt"> 
 
-
-	<select id="user_menu_list" parameterType="CommonMap" resultType="CommonMap">
-		with with_menu as (
-			SELECT
-				USER_.USER_ID,
-				USER_.USER_LEVEL,
-				USER_.USER_ROLE,
-				RMENU.MENU_ID
-			FROM
-				TB_USER_INFO_ROLE ROLE_
-				INNER JOIN TB_USER_INFO USER_ ON ROLE_.USER_ROLE = USER_.USER_ROLE
-				INNER JOIN TB_USER_INFO_ROLE_MENU RMENU ON ROLE_.USER_ROLE = RMENU.ROLE
-			WHERE
-<!-- 				RMENU.USE_YN = 'Y' AND USER_.USER_EMAIL = #{userid} -->
-				<!-- 22.05.12. 이메일로 로그인 변경 => 22.06.08. 변경 취소 -->
-				RMENU.USE_YN = 'Y' AND USER_.USER_ID = #{userid}
+	<select id="user_top_menu_list" parameterType="CommonMap" resultType="CommonMap">
+		WITH USER_MENU AS (
+		    SELECT B.MENU_ID
+		    FROM TB_USERS A
+		    LEFT JOIN TB_USER_ROLE_MENU B ON A.USER_ROLE = B.ROLE
+		    WHERE A.USER_ID = #{user_id}
+		    AND B.USE_YN = 'Y'
 		)
-		SELECT
-			MENU_ID                           AS "menu_id",
-			MENU_NM                           AS "menu_nm",
-			SYS_CONNECT_BY_PATH(MENU_ID, '/') AS "menu_id_path",
-			SYS_CONNECT_BY_PATH(MENU_NM, '/') AS "menu_nm_path",
-			PRT_MENU_ID                       AS "prt_menu_id",
-			DEPTH                             AS "depth",
-			SORT                              AS "sort",
-			USE_YN                            AS "use_yn",
-			URL                               AS "url",
-			QRY_STR                           AS "qry_str",
-			TMP1 AS "tmp1" , TMP2  AS "tmp2", TMP3  AS "tmp3", TMP4  AS "tmp4", TMP5  AS "tmp5",
-			TMP6 AS "tmp6" , TMP7  AS "tmp7", TMP8  AS "tmp8", TMP9  AS "tmp9", TMP10 AS "tmp10",
-			CASE
-				WHEN CONNECT_BY_ISLEAF = 0 THEN 'HAS'
-				WHEN CONNECT_BY_ISLEAF = 1 THEN 'NOT_HAS'
-			END                              AS "has_chld"
-		FROM 
-			(
-			SELECT
-				MENU_.MENU_ID,
-				MENU_.MENU_NM,
-				MENU_.PRT_MENU_ID,
-				MENU_.DEPTH,
-				MENU_.SORT,
-				MENU_.URL,
-				MENU_.QRY_STR,
-				MENU_.USE_YN,
-				MENU_.MENU_DIV,
-				MENU_.TMP1 , MENU_.TMP2 , MENU_.TMP3 , MENU_.TMP4 , MENU_.TMP5 , MENU_.TMP6 , MENU_.TMP7 , MENU_.TMP8 , MENU_.TMP9 , MENU_.TMP10
-			/*  FROM TB_RAWRIS_MENU_MGT MENU_ */
-			FROM
-				TB_WRMS_MENU_MGT   MENU_
-				INNER JOIN with_menu RMENU_ ON MENU_.MENU_ID = RMENU_.MENU_ID
-			WHERE
-				MENU_.USE_YN = 'Y' /* or  MENU_.menu_id = '02070000' */
-				AND MENU_.RENEWAL_NO = '1'
-				<if test="menu_div != null and menu_div != '' ">
-				AND MENU_.MENU_DIV  = #{menu_div}
-				</if>
-			)
-		WHERE
-			MENU_ID != '00000000'
-			<if test="menu_url != null and menu_url != '' ">
-			AND URL||QRY_STR = #{menu_url}
-			</if>
-		CONNECT BY
-			PRIOR MENU_ID = PRT_MENU_ID
-		START WITH
-			MENU_ID = '00000000'
-		ORDER SIBLINGS BY
-			DEPTH , SORT
+		SELECT A.MENU_ID, A.MENU_NM, A.MAIN_URL, A.LEFT_TOP_URL, A.LEFT_BOTTOM_URL, A.RIGHT_TOP_URL, A.RIGHT_BOTTOM_URL
+	    FROM TB_KRCICS_MENU_NEW A
+	    LEFT JOIN USER_MENU B ON A.MENU_ID = B.MENU_ID
+	    WHERE A.USE_YN = 'Y' AND A.DEPTH = 1
+	    ORDER BY SORT
+	</select>
+	
+	<select id="user_sub_menu_list" parameterType="CommonMap" resultType="CommonMap">
+		WITH USER_MENU AS (
+		    SELECT B.MENU_ID
+		    FROM TB_USERS A
+		    LEFT JOIN TB_USER_ROLE_MENU B ON A.USER_ROLE = B.ROLE
+		    WHERE A.USER_ID = #{user_id}
+		    AND B.USE_YN = 'Y'
+		)
+		SELECT A.MENU_ID, A.MENU_NM, A.MAIN_URL, A.LEFT_TOP_URL, A.LEFT_BOTTOM_URL, A.RIGHT_TOP_URL, A.RIGHT_BOTTOM_URL, A.MENU_CLASS
+	    FROM TB_KRCICS_MENU_NEW A
+	    LEFT JOIN USER_MENU B ON A.MENU_ID = B.MENU_ID
+	    WHERE A.USE_YN = 'Y' AND A.DEPTH = 2 AND A.PRT_MENU_ID = #{prt_menu_id}
+	    ORDER BY SORT
 	</select>
 	 
 	
-	<parameterMap type="hashmap" id="procWrmsAccesLogMap">
+<!-- 	<parameterMap type="hashmap" id="procWrmsAccesLogMap">
 		<parameter property="renewal_no" mode="IN"  jdbcType="VARCHAR" javaType="java.lang.String"/> 
 		<parameter property="user_id"    mode="IN"  jdbcType="VARCHAR" javaType="java.lang.String"/>
 		<parameter property="check_url"  mode="IN"  jdbcType="VARCHAR" javaType="java.lang.String"/>
@@ -96,6 +55,6 @@
 	       ) DMN ON AMN.MENU_ID = DMN.MENU_ID AND AMN.RENEWAL_NO = DMN.RENEWAL_NO
 	       WHERE AMN.MENU_ID = '00000000'
 	         AND AMN.RENEWAL_NO = #{renewal_no}
-	</select> 
+	</select>  -->
 	
 </mapper>
