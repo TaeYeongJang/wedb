@@ -90,5 +90,5 @@ function getAwsBonbuList() {
 </script>
 
         <!-- 전국평균강수량 -->
-        <div class="average_data" id="awsCarousel"></div>
+        <div class="average_data" id="awsCarousel"></div>   
         

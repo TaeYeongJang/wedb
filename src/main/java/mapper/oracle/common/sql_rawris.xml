@@ -310,4 +310,53 @@
 	]]>
 </select>
 
+
+<select id="get_aws_bonbu_sub_list" parameterType="CommonMap" resultType="CommonMap">
+	<![CDATA[
+    SELECT  A.*,
+        DECODE(ARAN.AWSID, NULL, NVL(R.SUM_RN, 0), NULL) AVG_RAIN30, -- 평년 강수량
+        DECODE(ARAN.AWSID, NULL, FUNC_MAX_NUMBER(ROUND(NVL (A.AVG_RAIN, 0) / NVL(GREATEST(R.SUM_RN, 1), 1)*100), 1000), NULL) AS RATIO -- 평년 대비 강수량
+    FROM
+        (SELECT
+            AWSID,
+            NAME AS HO_NAME,
+            BONBU_CODE,
+            BONBU_NM,
+            SUM_RN AVG_RAIN
+        FROM (
+            SELECT
+                *
+            FROM
+                (SELECT AWSID, NAME, BONBU_CODE, BONBU_NM FROM TB_CD_KMA_AWS_BONBU
+                UNION
+                SELECT AWSID, NAME, 0 BONBU_CODE, '전국' BONBU_NM FROM TB_CD_KMA_AWS_BONBU WHERE TOTAL_AVG_YN='Y'
+                ) BONBU,
+                (SELECT SUM (RN / 10) SUM_RN, STN_ID
+                FROM TB_NJ_AWS_RAIN_1HR
+                    WHERE TM BETWEEN #{s_start_date} || #{s_start_time} AND #{s_end_date} || #{s_end_time} GROUP BY STN_ID
+                ) RAIN
+            WHERE BONBU.AWSID=RAIN.STN_ID(+))
+        ) A,
+        (SELECT
+              AWSID STN_ID,
+              SUM (RN) SUM_RN
+            FROM TB_NJ_AWS_RAIN_AVG10_30
+            WHERE MMDD IN (
+                SELECT  TO_CHAR(YYYYMMDD, 'MMDD') MMDD
+                    FROM
+                        (
+                        SELECT
+                          TO_DATE (#{s_start_date}, 'YYYYMMDD') + LEVEL - 1 AS YYYYMMDD
+                        FROM DUAL CONNECT BY (TO_DATE (#{s_start_date}, 'YYYYMMDD') + LEVEL - 1) <= TO_DATE (#{s_end_date}, 'YYYYMMDD')
+                        )
+                    )
+            AND AWSID NOT IN (SELECT * FROM TB_NJ_AWS_RAIN_AVG_NOT) -- 평년데이터가 부족한 경우
+            GROUP BY AWSID
+        ) R,
+        TB_NJ_AWS_RAIN_AVG_NOT ARAN
+    WHERE A.AWSID = R.STN_ID(+)
+    AND   A.AWSID = ARAN.AWSID(+)
+    ORDER BY HO_NAME
+	]]>
+</select>
 </mapper>

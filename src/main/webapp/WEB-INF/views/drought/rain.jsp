@@ -267,7 +267,7 @@
     <section id="rnb">
         <!-- 전국평균강수량 -->
         <%@include file="/WEB-INF/views/common/PageRightTop.jsp"%>
-        <hr>
+        <hr> 
         <%@include file="/WEB-INF/views/common/PageRightBottom.jsp"%>
     </section>
 </div>
