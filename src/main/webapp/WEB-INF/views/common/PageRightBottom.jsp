@@ -6,7 +6,7 @@
 </style>
 <script type="text/javascript">
 
-$(document).ready(function(){ 	
+$(document).ready(function() { 	
 	getList(0);
 	
 	$("#search_equip_btn").click(function() {
@@ -108,9 +108,16 @@ function getList(buseoCode) {
 		else
 			status_html += '<a class="awsLink" href="javascript:onMove(\'' + i + '\', \'' + rst[i].BONBU_CODE + '\');">';
 		
-		status_html += rst[i].HO_NAME + '</a></td><td>' + rst[i].AVG_RAIN + '</td><td>' + rst[i].AVG_RAIN30 + '</td><td>' + rst[i].RATIO;
+		var avg_rain30, ratio;
+		if(rst[i].AVG_RAIN30 != null) avg_rain30 = rst[i].AVG_RAIN30;
+		else avg_rain30 = '-';
+		if(rst[i].RATIO != null) ratio = rst[i].RATIO;
+		else ratio = '-';
 		
-		if(rst[i].RATIO > 100)		 status_html += ' % ▲</td></tr>';
+		status_html += rst[i].HO_NAME + '</a></td><td>' + rst[i].AVG_RAIN + '</td><td>' + avg_rain30 + '</td><td>' + ratio;
+		
+		if(rst[i].RATIO == null)		 status_html += '</td></tr>';
+		else if(rst[i].RATIO > 100)	 status_html += ' % ▲</td></tr>';
 		else if(rst[i].RATIO == 100) status_html += ' %</td></tr>';	
 		else						 status_html += ' % ▼</td></tr>';
 	}
