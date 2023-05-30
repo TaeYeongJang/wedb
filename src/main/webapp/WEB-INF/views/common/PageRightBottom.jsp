@@ -116,7 +116,7 @@ function getList(buseoCode) {
 		
 		status_html += rst[i].HO_NAME + '</a></td><td>' + rst[i].AVG_RAIN + '</td><td>' + avg_rain30 + '</td><td>' + ratio;
 		
-		if(rst[i].RATIO == null)		 status_html += '</td></tr>';
+		if(rst[i].RATIO == null)	 status_html += '</td></tr>';
 		else if(rst[i].RATIO > 100)	 status_html += ' % ▲</td></tr>';
 		else if(rst[i].RATIO == 100) status_html += ' %</td></tr>';	
 		else						 status_html += ' % ▼</td></tr>';
