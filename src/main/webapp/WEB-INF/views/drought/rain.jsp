@@ -69,10 +69,6 @@
             var fromTime = froms[1].replace("시", "");
             var toTime = tos[1].replace("시", "");
 
-            // 우축 강수량도 변경
-            //window.parent.makeRightMiddleHTML( '/krcics/kma/tmplC/awsTable.do?' + param);
-           //window.parent.makeRightTopHTML('/krcics/kma/tmplC/kma-rainfall-index.do?' + param);
-			
 			searchConditionObj.sql = sqlMapper + "get_aws_new_list";
 			searchConditionObj.base_dt = "20230317";
 			searchConditionObj.db_type = "rawris";  
@@ -82,6 +78,10 @@
 			searchConditionObj.s_end_date = tos[0];
 			searchConditionObj.s_end_time = toTime;
 
+			// 우측 강수량도 변경
+			getAwsBonbuList();	// 우측 상단
+			getList(0);			// 우측 하단
+			
 			load_data(true);
 		}
 		
