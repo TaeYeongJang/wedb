@@ -2,12 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
 <mapper namespace="rawris.krc.rawris">
 	
+	<select id="get_addr_info" parameterType="CommonMap" resultType="CommonMap">
+		SELECT ADDR_CODE
+        FROM TB_API_ADDR_CODE
+        WHERE FULL_ADDR = #{full_addr} 
+        AND USE_YN = 'Y'
+	</select>
+	
 	<select id="get_sisul" parameterType="CommonMap" resultType="CommonMap">
 		SELECT *
           FROM KTD_WATER_SISUL
          WHERE 1=1
            AND FAC_CODE IN ('4579010352','2917010029','4617010152')
-			  
 	</select>
 	
 	<select id="get_aws_new_list" parameterType="CommonMap" resultType="CommonMap">
@@ -214,37 +220,34 @@
 
 
 <select id="get_real_status_info" parameterType="CommonMap" resultType="CommonMap">
-  select
-       BONBU_CD
-      ,STATUS
-      ,INSERT_ID
-      ,INSERT_DATE
-      ,UPDATE_ID
-      ,UPDATE_DATE
-      ,MENU_CLASS
-   from TB_REAL_STATUS_INFO
-  where 1=1
-   <!--  AND BONBU_CD=#{bonbuCd} -->
-  AND INSERT_ID=#{user_id} AND MENU_CLASS=#{menu_class}
+	SELECT STATUS
+	FROM TB_REAL_STATUS_INFO
+  	WHERE INSERT_ID = #{user_id} AND MENU_CLASS = #{menu_class}
 </select>
 	
 	
 <select id="get_kma_report_list" parameterType="CommonMap" resultType="CommonMap">
-<![CDATA[
-    SELECT * FROM (SELECT K60.T1, K60.T2, K60.TM_FC, substr(K60.TM_FC, 0 ,6) as YM, substr(K60.TM_FC, 7 ,2) as DD
-        FROM TB_KTKO60_INF_INFO K60,
-             (  SELECT STN_ID, TM_FC, TM_SEQ
-                  FROM TB_KTKO51_INF_INFO
-                 WHERE STN_ID = '108'
-                       AND TM_FC >= '201707111100'
-                       AND WARN_VAR IN ('1', '2', '7') /* 1:강풍, 2:호우, 7:태풍 만 고려 */
-              GROUP BY STN_ID, TM_FC, TM_SEQ) K51
-       WHERE     K60.STN_ID = K51.STN_ID
-             AND K60.TM_FC = K51.TM_FC
-             AND K60.TM_SEQ = K51.TM_SEQ
-             -- AND SUBSTR (K60.TM_FC, 0, 8) >= TO_CHAR (SYSDATE - 5, 'YYYYMMDD') -- 최근 5일치
-    ORDER BY TM_FC DESC) WHERE ROWNUM <= 5
-]]>
+	<![CDATA[
+    SELECT * 
+    FROM (
+    	SELECT K60.T1, K60.T2, K60.TM_FC
+    	FROM TB_KTKO60_INF_INFO K60,
+             (
+             	SELECT STN_ID, TM_FC, TM_SEQ
+             	FROM TB_KTKO51_INF_INFO
+             	WHERE STN_ID = '108'
+                AND TM_FC >= '201707111100'
+                AND WARN_VAR IN ('1', '2', '7') /* 1:강풍, 2:호우, 7:태풍 만 고려 */
+              	GROUP BY STN_ID, TM_FC, TM_SEQ
+        	 ) K51
+		WHERE K60.STN_ID = K51.STN_ID
+    	AND K60.TM_FC = K51.TM_FC
+    	AND K60.TM_SEQ = K51.TM_SEQ
+    	-- AND SUBSTR(K60.TM_FC, 0, 8) >= TO_CHAR(SYSDATE-5, 'YYYYMMDD') -- 최근 5일치
+    	ORDER BY TM_FC DESC
+   	) 
+    WHERE ROWNUM <= 5
+	]]>
 </select>
 
 <select id="get_aws_bonbu_list" parameterType="CommonMap" resultType="CommonMap">
@@ -267,7 +270,7 @@
                 ) BONBU,
                 (SELECT SUM (RN / 10) SUM_RN, STN_ID
                 FROM TB_NJ_AWS_RAIN_1HR
-                    WHERE TM BETWEEN #{s_start_date} || #{P_FROM_TIME} AND #{s_end_date} || #{P_TO_TIME} GROUP BY STN_ID
+                    WHERE TM BETWEEN #{s_start_date} || #{s_start_time} AND #{s_end_date} || #{s_end_time} GROUP BY STN_ID
                 ) RAIN
                     WHERE BONBU.AWSID=RAIN.STN_ID(+))
                 GROUP BY BONBU_CODE,BONBU_NM
@@ -307,4 +310,53 @@
 	]]>
 </select>
 
+
+<select id="get_aws_bonbu_sub_list" parameterType="CommonMap" resultType="CommonMap">
+	<![CDATA[
+    SELECT  A.*,
+        DECODE(ARAN.AWSID, NULL, NVL(R.SUM_RN, 0), NULL) AVG_RAIN30, -- 평년 강수량
+        DECODE(ARAN.AWSID, NULL, FUNC_MAX_NUMBER(ROUND(NVL (A.AVG_RAIN, 0) / NVL(GREATEST(R.SUM_RN, 1), 1)*100), 1000), NULL) AS RATIO -- 평년 대비 강수량
+    FROM
+        (SELECT
+            AWSID,
+            NAME AS HO_NAME,
+            BONBU_CODE,
+            BONBU_NM,
+            SUM_RN AVG_RAIN
+        FROM (
+            SELECT
+                *
+            FROM
+                (SELECT AWSID, NAME, BONBU_CODE, BONBU_NM FROM TB_CD_KMA_AWS_BONBU
+                UNION
+                SELECT AWSID, NAME, 0 BONBU_CODE, '전국' BONBU_NM FROM TB_CD_KMA_AWS_BONBU WHERE TOTAL_AVG_YN='Y'
+                ) BONBU,
+                (SELECT SUM (RN / 10) SUM_RN, STN_ID
+                FROM TB_NJ_AWS_RAIN_1HR
+                    WHERE TM BETWEEN #{s_start_date} || #{s_start_time} AND #{s_end_date} || #{s_end_time} GROUP BY STN_ID
+                ) RAIN
+            WHERE BONBU.AWSID=RAIN.STN_ID(+))
+        ) A,
+        (SELECT
+              AWSID STN_ID,
+              SUM (RN) SUM_RN
+            FROM TB_NJ_AWS_RAIN_AVG10_30
+            WHERE MMDD IN (
+                SELECT  TO_CHAR(YYYYMMDD, 'MMDD') MMDD
+                    FROM
+                        (
+                        SELECT
+                          TO_DATE (#{s_start_date}, 'YYYYMMDD') + LEVEL - 1 AS YYYYMMDD
+                        FROM DUAL CONNECT BY (TO_DATE (#{s_start_date}, 'YYYYMMDD') + LEVEL - 1) <= TO_DATE (#{s_end_date}, 'YYYYMMDD')
+                        )
+                    )
+            AND AWSID NOT IN (SELECT * FROM TB_NJ_AWS_RAIN_AVG_NOT) -- 평년데이터가 부족한 경우
+            GROUP BY AWSID
+        ) R,
+        TB_NJ_AWS_RAIN_AVG_NOT ARAN
+    WHERE A.AWSID = R.STN_ID(+)
+    AND   A.AWSID = ARAN.AWSID(+)
+    ORDER BY HO_NAME
+	]]>
+</select>
 </mapper>
