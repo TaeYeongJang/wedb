@@ -245,10 +245,10 @@
             <div class="legend_box">
                 <h5>평년대비 강수율(%)</h5>
                 <ul class="legend__type1">
-                    <li><span class="step_point2 bgcolor_step1"><em class="hidden">관심</em></span>65초과</li>
-                    <li><span class="step_point2 bgcolor_step2"><em class="hidden">주의</em></span>55초과 ~ 65 이하</li>
-                    <li><span class="step_point2 bgcolor_step3"><em class="hidden">경계</em></span>45초과 ~ 55 이하</li>
-                    <li><span class="step_point2 bgcolor_step4"><em class="hidden">심각</em></span>45이하</li>
+                    <li><span class="step_point2 bgcolor_step1"><em class="hidden">관심</em></span>65 초과</li>
+                    <li><span class="step_point2 bgcolor_step2"><em class="hidden">주의</em></span>55 초과 ~ 65 이하</li>
+                    <li><span class="step_point2 bgcolor_step3"><em class="hidden">경계</em></span>45 초과 ~ 55 이하</li>
+                    <li><span class="step_point2 bgcolor_step4"><em class="hidden">심각</em></span>45 이하</li>
                 </ul>
             </div>
             <hr>  
